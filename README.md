@@ -2,7 +2,7 @@
 
 One plugin is currently available... the SWS Website ported to OnStepX.
 
-This requires adding one line to Config.h (in addition to enabling the ESP32 ACCESS_POINT or STATION mode.)
+This requires adding one line to OnStepX's Config.h file (in addition to enabling the ESP32 ACCESS_POINT or STATION mode.)
 
 - #define WEB_SERVER ON
 
