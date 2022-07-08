@@ -8,7 +8,7 @@ This requires adding one line to OnStepX's Config.h file (in addition to enablin
 
 Which overrides the default disabled state.
 
-You also must copy the /website directory into the src/OnStepX/plugins directory and add an entery for it in Plugins.config.h similar to the following:
+You also must copy the /website directory into the OnStepX/src/plugins directory and add an entery for it in Plugins.config.h similar to the following:
 
 - #define PLUGIN1 website 
 - #include "website/Website.h"
