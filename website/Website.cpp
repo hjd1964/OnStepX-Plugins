@@ -9,7 +9,7 @@ void pollWebSvr() {
 }
 
 void Website::init() {
-  VLF("MSG: SmartWebServer Plugin");
+  VLF("MSG: Website Plugin");
 
   VLF("MSG: Set webpage handlers");
   www.on("/index.htm", handleRoot);
@@ -53,7 +53,7 @@ void Website::init() {
   VF(" task (rate 10ms priority 7)... ");
   if (tasks.add(10, 0, true, 7, pollWebSvr, "webPoll")) { VL("success"); } else { VL("FAILED!"); }
 
-  VLF("MSG: SmartWebServer ready");
+  VLF("MSG: Website Plugin ready");
 }
 
 Website website;
