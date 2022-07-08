@@ -4,7 +4,7 @@ One plugin is currently available... the SWS Website ported to OnStepX.
 
 This requires adding one line to Config.h (in addition to enabling the ESP32 ACCESS_POINT or STATION mode.)
 
-#define WEB_SERVER ON
+- #define WEB_SERVER ON
 
 Which overrides the default disabled state.
 
