@@ -10,9 +10,8 @@ Which overrides the default disabled state.
 
 You also must copy the /website directory into the src/OnStepX/plugins directory and add an entery for it in Plugins.config.h similar to the following:
 
-#define PLUGIN1 website
-
-#include "website/Website.h"
+- #define PLUGIN1 website 
+- #include "website/Website.h"
 
 OnStepX will then initialize and use it.
 
