@@ -11,7 +11,6 @@
 void State::updateMount()
 {
   char temp[80];
-  char temp1[80];
 
   // UTC Time and Date
   if (!onStep.command(":GX80#", temp)) strcpy(temp, "?");
