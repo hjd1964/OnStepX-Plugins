@@ -8,8 +8,10 @@
 #include "../../locales/Locale.h"
 #include "../../../../lib/convert/Convert.h"
 
-void State::updateMount()
+void State::updateMount(bool now)
 {
+  if (!now && millis() - lastMountPageLoadTime > 2000) return;
+
   char temp[80];
 
   // UTC Time and Date
