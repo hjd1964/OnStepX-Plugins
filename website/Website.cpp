@@ -42,7 +42,7 @@ void Website::init() {
   // allow time for the background servers to come up
   delay(2000);
 
-  if (status.valid) {
+  if (status.onStepFound) {
     status.update(false);
     delay(100);
   }

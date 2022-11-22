@@ -19,18 +19,18 @@ void State::init()
 void State::poll()
 {
   status.update(true);
-  if (status.mountFound) updateMount();
-  if (status.focuserFound) updateFocuser();
-  if (status.auxiliaryFound) updateAuxiliary();
-  if (status.valid) updateController();
+  if (status.mountFound == SD_TRUE) updateMount();
+  if (status.focuserFound == SD_TRUE) updateFocuser();
+  if (status.auxiliaryFound == SD_TRUE) updateAuxiliary();
+  if (status.onStepFound) updateController();
 
-  if (status.focuserFound && millis() - lastFocuserPageLoadTime < 2000) {
+  if (status.focuserFound == SD_TRUE && millis() - lastFocuserPageLoadTime < 2000) {
     char temp[80];
     if (!onStep.command(":FG#", temp)) strcpy(temp, "?"); else strcat(temp, " microns"); Y;
     strncpy(focuserPositionStr, temp, 20); focuserPositionStr[19] = 0; Y;
   }
 
-  if (status.rotatorFound) updateRotator();
+  if (status.rotatorFound == SD_TRUE) updateRotator();
 }
 
 void formatDegreesStr(char *s)
