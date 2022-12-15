@@ -145,6 +145,7 @@
   #define SIDEREAL_CH "&#9733;"
   #define LUNAR_CH "&#9790;"
   #define SOLAR_CH "&#9737;"
+  #define KING_CH "&#9812;"
 #else
   #define HOME_CH "H"
   #define ARROW_DR "-&gt;"
@@ -163,6 +164,7 @@
   #define SIDEREAL_CH "*"
   #define LUNAR_CH "("
   #define SOLAR_CH "O"
+  #define KING_CH "K"
 #endif
 
 #define BUTTON_N "N"
@@ -349,6 +351,7 @@
 #define L_ADV_SET_TITLE "Fortgeschrittene"
 #define L_ADV_SET_HEADER_MSG "sofern nicht anders angegeben, werden die unten aufgeführten Änderungen nach dem Neustart von OnStep wirksam:"
 #define L_ADV_MOUNT_TYPE " wählen 1 GEM, 2 EQ Fork, 3 Alt/Azm"
+#define L_ADV_BOOL "0 falsch oder 1 wahr"
 
 #define L_ADV_SET_SPWR "Schritte pro Schneckendrehung (0 zum Deaktivieren)"
 #define L_ADV_SET_SPD "Schritte pro Grad"
