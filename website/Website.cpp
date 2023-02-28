@@ -13,6 +13,7 @@ void Website::init() {
 
   VLF("MSG: Set webpage handlers");
   www.on("/index.htm", handleRoot);
+  www.on("/index-ajax-get.txt", indexAjaxGet);
   www.on("/index.txt", indexAjax);
 
   www.on("/mount.htm", handleMount);
