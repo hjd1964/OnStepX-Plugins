@@ -149,6 +149,7 @@ class State {
 
     bool rotatorChecked = false;
 
+    unsigned long lastPoll = 0;
 };
 
 void formatDegreesStr(char *s);

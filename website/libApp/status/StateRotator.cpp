@@ -2,7 +2,6 @@
 #include "State.h"
 
 #include "Status.h"
-#include "../../../../lib/tasks/OnTask.h"
 #include "../cmd/Cmd.h"
 #include "../../locales/Locale.h"
 #include "../../../../lib/convert/Convert.h"
@@ -24,7 +23,7 @@ void State::updateRotator(bool now)
       strcat(temp, &temp1[5]);
       strcat(temp, "&#39;");
     } else strcpy(temp, "?");
-    strncpyex(rotatorPositionStr, temp, 20); Y;
+    strncpyex(rotatorPositionStr, temp, 20); delay(0);
 
     // rotator working slew rate
     if (status.getVersionMajor() >= 10)
@@ -58,6 +57,6 @@ void State::updateRotator(bool now)
       rotatorDerotateReverse = false;
       rotatorGotoRate = 0;
     }
-    Y;
+    delay(0);
   }
 }

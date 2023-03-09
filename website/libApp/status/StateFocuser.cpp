@@ -2,7 +2,6 @@
 #include "State.h"
 
 #include "Status.h"
-#include "../../../../lib/tasks/OnTask.h"
 #include "../cmd/Cmd.h"
 #include "../misc/Misc.h"
 #include "../../locales/Locale.h"
@@ -15,24 +14,24 @@ void State::updateFocuser(bool now)
   char temp[80];
 
   // identify active focuser
-  if (onStep.command(":FA#", temp)) focuserSelected = atoi(temp); else focuserSelected = 0; Y;
+  if (onStep.command(":FA#", temp)) focuserSelected = atoi(temp); else focuserSelected = 0; delay(0);
 
   if (focuserSelected >= 1 && focuserSelected <= 6) {
 
     // focuser/telescope temperature
     if (!onStep.command(":Ft#", temp)) strcpy(temp, "?"); else localeTemperature(temp);
-    strncpyex(focuserTemperatureStr, temp, 16); Y;
+    strncpyex(focuserTemperatureStr, temp, 16); delay(0);
 
     // focuser backlash
     if (!onStep.command(":Fb#", temp)) strcpy(temp, "?");
-    strncpyex(focuserBacklashStr, temp, 16); Y;
+    strncpyex(focuserBacklashStr, temp, 16); delay(0);
 
     // focuser deadband
     if (!onStep.command(":Fd#", temp)) strcpy(temp, "?");
-    strncpyex(focuserDeadbandStr, temp, 16); Y;
+    strncpyex(focuserDeadbandStr, temp, 16); delay(0);
 
     // focuser TCF enable
-    focuserTcfEnable = onStep.commandBool(":Fc#"); Y;
+    focuserTcfEnable = onStep.commandBool(":Fc#"); delay(0);
 
     // focuser TCF
     if (onStep.command(":FC#", temp))
@@ -43,7 +42,7 @@ void State::updateFocuser(bool now)
         dtostrf(tcfCoef, 1, 4, temp);
       } else strcpy(temp, "?");
     } else strcpy(temp, "?");
-    strncpyex(focuserTcfCoefStr, temp, 16); Y;
+    strncpyex(focuserTcfCoefStr, temp, 16); delay(0);
 
     // focuser working slew rate
     if (status.getVersionMajor() >= 10)
@@ -73,6 +72,6 @@ void State::updateFocuser(bool now)
       focuserSlewing = false;
       focuserGotoRate = 3;
     }
-    Y;
+    delay(0);
  }
 }
