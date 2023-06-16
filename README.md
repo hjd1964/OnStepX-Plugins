@@ -2,11 +2,11 @@
 
 One plugin is currently available... the SWS Website ported to OnStepX.
 
-This requires adding one line to OnStepX's Config.h file (in addition to enabling the ESP32 ACCESS_POINT or STATION mode.)
-
+This requires changing two lines in OnStepX's Extended.config.h file:
+- #define SERIAL_IP_MODE WIFI_ACCESS_POINT
 - #define WEB_SERVER ON
 
-Which overrides the default disabled state.
+Which enables WiFi and the Webserver components of OnStepX.
 
 You also must copy the /website directory into the OnStepX/src/plugins directory and add an entery for it in Plugins.config.h similar to the following:
 
