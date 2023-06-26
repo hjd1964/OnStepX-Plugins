@@ -15,4 +15,4 @@ You also must copy the /website directory into the OnStepX/src/plugins directory
 
 OnStepX will then initialize and use it.
 
-Additional settings are in /website/Website.config.h
+Additional settings are in /website/Config.h
