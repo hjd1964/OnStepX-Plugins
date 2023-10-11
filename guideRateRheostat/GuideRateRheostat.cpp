@@ -23,9 +23,9 @@ void GuideRateRheostat::loop() {
     if (v < RHEOSTAT_OFF_THRESHOLD_VOLTS) {
       if (abs(v - lastVoltage) > RHEOSTAT_CHANGE_THRESHOLD_VOLTS) {
         char s[40];
-        sprintF(s, ":RA%f#", (v/RHEOSTAT_OFF_THRESHOLD_VOLTS)*radToDegF(goTo.rate)*RHEOSTAT_RATE_RANGE);
+        sprintF(s, ":RA%1.3f#", (v/RHEOSTAT_OFF_THRESHOLD_VOLTS)*radToDegF(goTo.rate)*RHEOSTAT_RATE_RANGE);
         SERIAL_LOCAL.transmit(s);
-        sprintF(s, ":RE%f#", (v/RHEOSTAT_OFF_THRESHOLD_VOLTS)*radToDegF(goTo.rate)*RHEOSTAT_RATE_RANGE);
+        sprintF(s, ":RE%1.3f#", (v/RHEOSTAT_OFF_THRESHOLD_VOLTS)*radToDegF(goTo.rate)*RHEOSTAT_RATE_RANGE);
         SERIAL_LOCAL.transmit(s);
         lastVoltage = v;
       }
