@@ -11,7 +11,7 @@ public:
   void loop();
 
 private:
-  float lastVoltage = 3.3F;
+  float lastResistance = RHEOSTAT_R2;
 
 };
 

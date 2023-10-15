@@ -18,17 +18,29 @@ void GuideRateRheostat::init() {
 
 void GuideRateRheostat::loop() {
   #if RHEOSTAT_PIN != OFF
-    float v = (analogRead(RHEOSTAT_PIN)/1023.0F)*3.3F;
+    float voltage = (analogRead(RHEOSTAT_PIN)/1023.0F)*3.3F;
+    float resistance;
+    if (voltage >= 3.3F) {
+      resistance = RHEOSTAT_R1; 
+    } else {
+      resistance = (voltage*RHEOSTAT_R1)/(3.3F - voltage);
+    } 
 
-    if (v < RHEOSTAT_OFF_THRESHOLD_VOLTS) {
-      if (abs(v - lastVoltage) > RHEOSTAT_CHANGE_THRESHOLD_VOLTS) {
-        char s[40];
-        sprintF(s, ":RA%1.3f#", (v/RHEOSTAT_OFF_THRESHOLD_VOLTS)*radToDegF(goTo.rate)*RHEOSTAT_RATE_RANGE);
-        SERIAL_LOCAL.transmit(s);
-        sprintF(s, ":RE%1.3f#", (v/RHEOSTAT_OFF_THRESHOLD_VOLTS)*radToDegF(goTo.rate)*RHEOSTAT_RATE_RANGE);
-        SERIAL_LOCAL.transmit(s);
-        lastVoltage = v;
-      }
+    if (abs(resistance - lastResistance) > RHEOSTAT_R2*(RHEOSTAT_CHANGE_THRESHOLD/100.0F)) {
+      char s[40];
+      float slowestRate = (15.0F*RHEOSTAT_RATE_MINIMUM)/3600.0F;
+      float fastestRate = radToDegF(goTo.rate)*RHEOSTAT_RATE_MAXIMUM;
+
+      float rate = pow(resistance/RHEOSTAT_R2, RHEOSTAT_EXPONENTIAL)*fastestRate;
+
+      if (rate < slowestRate) rate = slowestRate;
+      if (rate > fastestRate) rate = fastestRate;
+
+      sprintF(s, ":RA%1.3f#", rate);
+      SERIAL_LOCAL.transmit(s);
+      sprintF(s, ":RE%1.3f#", rate);
+      SERIAL_LOCAL.transmit(s);
+      lastResistance = resistance;
     }
   #endif
 }
