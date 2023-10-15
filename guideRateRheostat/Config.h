@@ -1,7 +1,7 @@
 // GuideRateRheostat plugin (experimental!) configuration file
 #pragma once
 
-#define RHEOSTAT_PIN 12                        // default disabled, change to pin# for rheostat analog input
+#define RHEOSTAT_PIN OFF                       // default disabled, change to pin# for rheostat analog input
 #define RHEOSTAT_CHANGE_THRESHOLD 5            // default >= 5% change before setting a new rate
 #define RHEOSTAT_RATE_MINIMUM 1.0              // default slowest guide rate is 1.0x the sidereal rate
 #define RHEOSTAT_RATE_MAXIMUM 0.5              // default fastest guide rate is 0.5x the goto rate
