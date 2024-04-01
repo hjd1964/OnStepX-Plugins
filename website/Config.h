@@ -8,7 +8,7 @@
 // For Wifi successful startup an AP will appear with an default SSID of "OnStepX" and default password of "password".
 // After connecting: the web-site is at "192.168.0.1" and the cmd channels are at "192.168.0.1:9996 to 9999".
 // If locked out selecting "Erase Flash: All Flash Contents" from the Arduino IDE Tools menu before uploading/flashing again
-// can help restore access to the ESP32.
+// can help restore access to the ESP32; or see OnStepX's Extended.config.h to wipe NV.
 
 //      Parameter Name              Value   Default  Notes                                                                      Hint
 // DISPLAY -------------------------------------------------------------------------------------------------------------------------
