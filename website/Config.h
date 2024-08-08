@@ -55,5 +55,13 @@
 #define DRIVE_MAIN_AXES_REVERSE        ON //    ON, to display Axis1/2 Reverse if available.                                  Option
 #endif
 
+// HOME OFFSET ---------------------------------------------------------------------------------------------------------------------
+#ifndef HOME_OFFSET_RANGE_AXIS1
+#define HOME_OFFSET_RANGE_AXIS1      7200 //  7200, allow adjusting home offset up to +/- 2 degrees                           Infreq
+#endif
+#ifndef HOME_OFFSET_RANGE_AXIS2
+#define HOME_OFFSET_RANGE_AXIS2      7200 //  7200, allow adjusting home offset up to +/- 2 degrees                           Infreq
+#endif
+
 // THAT'S IT FOR USER CONFIGURATION!
 // -------------------------------------------------------------------------------
