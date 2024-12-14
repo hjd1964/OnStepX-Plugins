@@ -2,15 +2,14 @@
 
 ## Website
 
-You must copy the /website directory into the OnStepX/src/plugins directory and add an entery for it in Plugins.config.h similar to the following:
+The SWS Website for ESP32's and WiFi only, ported to OnStepX.
 
+**You must copy the /website directory into the OnStepX/src/plugins directory and add an entery for it in Plugins.config.h similar to the following:**
 - #define PLUGIN1 website 
 - #include "website/Website.h"
 
-The SWS Website for ESP32's and WiFi only, ported to OnStepX.
-
-This plugin requires that WiFi be activated in OnStepX's Config.h file, for example:
-#define SERIAL_RADIO WIFI_ACCESS_POINT
+**This plugin requires that WiFi be activated in OnStepX's Config.h file, for example:**
+- #define SERIAL_RADIO WIFI_ACCESS_POINT
 
 Which enables WiFi and the Webserver components of OnStepX.
 
