@@ -7,7 +7,11 @@
 #include "../Page.h"
 #include "../Pages.common.h"
 
-extern NVS nv;
+#ifdef NVS
+  extern NVS nv;
+#else
+  #include "../../../../lib/nv/Nv.h"
+#endif
 
 extern int webTimeout;
 extern int cmdTimeout;
