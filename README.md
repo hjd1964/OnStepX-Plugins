@@ -27,3 +27,25 @@ You must copy the /guideRateRheostat directory into the OnStepX/src/plugins dire
 The guide rate rheostat allows using an knob, on a basic hand controller for example, to adjust the guide rate.
 
 Its settings are in /guideRateRheostat/Config.h and you need to set the pin to be used for analog input, the values to describe the rheostat voltage divider, etc.
+
+## ElegantOTA
+
+First, you must add [ElegantOTA](https://docs.elegantota.pro/) to your libraries. Follow the instructions [here](https://docs.elegantota.pro/getting-started/installation).
+You must copy the /elegantota directory into the OnStepX/src/plugins directory and add an entery for it in Plugins.config.h similar to the following:
+
+```
+#define PLUGIN1 elegantOTAPlugin
+#define PLUGIN2_COMMAND_PROCESSING ON // Only required if WiFi is disabled
+#include "elegantota/ElegantOTAPlugin.h"
+#define ELEGANTOTA_PLUGIN_SSID "OnStepX-OTA" // Optional, access point SSID
+#define ELEGANTOTA_PLUGIN_PSK "onstepx-ota-wifipassword" // Optional
+#define ELEGANTOTA_PLUGIN_USERNAME "otauser" // Optional
+#define ELEGANTOTA_PLUGIN_PASSWORD "otapassword" // Optional
+#endif
+```
+
+
+The plugin works in two different ways, depending on whether WiFi is enabled
+
+ - If WiFi is enabled, ElegantOTA is always on, and reachable through the `/update` path
+ - If WiFi is *not* enabled (for instance, if you're using a separate ESP8266 for the webserver), you need to manually send the `:EOTA#` command to the OnStepX serial port when you want to turn on ElegantOTA. The ElegantOTA plugin will start a WiFi access point (defined by `ELEGANTOTA_PLUGIN_SSID/ELEGANTOTA_PLUGIN_PSK`, default `OnStepX-OTA`, and no password). After connecting to the access point, simply go to the OnStepX IP address (typically `192.168.1.4`) to start the update.
