@@ -65,9 +65,14 @@ void MetricsPlugin::populateMetrics() {
             .label("connected", String(WiFi.isConnected()))
         );
     if(WiFi.isConnected()) {
+        response += Metric{"wifi_rssi", "WiFi RSSI", "gauge"}
+            .entry(Metric::Entry{static_cast<float>(WiFi.RSSI())}
+                .label("ssid", WiFi.SSID())
+                .label("channel", String(WiFi.channel()))
+            )
+            .toString();
         wifiMetric.entries.back()
             .label("ssid", WiFi.SSID())
-            .label("rssi", String(WiFi.RSSI()))
             .label("channel", String(WiFi.channel()))
             .label("ip", WiFi.localIP().toString())
             .label("gateway", WiFi.gatewayIP().toString())
