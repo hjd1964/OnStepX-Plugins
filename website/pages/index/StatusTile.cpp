@@ -16,6 +16,15 @@ void statusTile(String &data)
 
   // General status
 
+  // get hardware name
+  if (status.getVersionMajor() > 10 || (status.getVersionMajor() == 10 && status.getVersionMinor() >= 26)) {
+    if (onStep.command(":GVH#", temp)) {
+      data.concat(F(L_HARDWARE ": <span class='c'>"));
+      data.concat(temp);
+      data.concat(F("</span><br />"));
+    }
+  }
+
   sprintf_P(temp, html_indexGeneralError, state.lastErrorStr);
   data.concat(temp);
 
@@ -30,7 +39,7 @@ void statusTile(String &data)
     data.concat(temp);
   #endif
 
-  #if OPERATIONAL_MODE == WIFI && DISPLAY_WIFI_SIGNAL_STRENGTH == ON
+  #if OPERATIONAL_MODE == WIFI
     sprintf_P(temp, html_indexSignalStrength, state.signalStrengthStr);
     data.concat(temp);
   #endif
@@ -115,7 +124,7 @@ void statusTileAjax(String &data)
     data.concat("\n");
   }
 
-  #if OPERATIONAL_MODE == WIFI && DISPLAY_WIFI_SIGNAL_STRENGTH == ON
+  #if OPERATIONAL_MODE == WIFI
     data.concat(F("signal|"));
     data.concat(state.signalStrengthStr);
     data.concat("\n");
