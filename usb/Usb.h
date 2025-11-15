@@ -11,8 +11,8 @@
   // Plugin config
   #define USB1_PIN                   OFF //    OFF, n. I/O pin controlling the port state.    Option
   #define USB1_NAME               "USB1" //    "USB..", Name of the device being controlled.  Option
-  #define USB1_DEFAULT_STATE         OFF //    OFF, ON. State to startup in.                  Option
   #define USB1_ON_STATE             HIGH //    HIGH, LOW Port control pin ON (active) state.  Option
+  #define USB1_DEFAULT_STATE         OFF //    OFF, ON. State to startup in.                  Option
   #define USB2_PIN                   OFF //    OFF, n. I/O pin controlling the port state.    Option
   #define USB2_NAME               "USB2" //    "USB..", Name of the device being controlled.  Option
   #define USB2_ON_STATE             HIGH //    HIGH, LOW Port control pin ON (active) state.  Option
