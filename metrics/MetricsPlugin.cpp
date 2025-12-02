@@ -35,6 +35,23 @@ void MetricsPlugin::init() {
   www.on(METRICS_PLUGIN_PATH, HTTP_GET, std::bind(&MetricsPlugin::populateMetrics, this));
 }
 
+const char *resetReasonName(esp_reset_reason_t r) {
+  switch (r) {
+    case ESP_RST_UNKNOWN:   return "Unknown";
+    case ESP_RST_POWERON:   return "PowerOn";    //Power on or RST pin toggled
+    case ESP_RST_EXT:       return "ExtPin";     //External pin - not applicable for ESP32
+    case ESP_RST_SW:        return "Reboot";     //esp_restart()
+    case ESP_RST_PANIC:     return "Crash";      //Exception/panic
+    case ESP_RST_INT_WDT:   return "WDT_Int";    //Interrupt watchdog (software or hardware)
+    case ESP_RST_TASK_WDT:  return "WDT_Task";   //Task watchdog
+    case ESP_RST_WDT:       return "WDT_Other";  //Other watchdog
+    case ESP_RST_DEEPSLEEP: return "Sleep";      //Reset after exiting deep sleep mode
+    case ESP_RST_BROWNOUT:  return "BrownOut";   //Brownout reset (software or hardware)
+    case ESP_RST_SDIO:      return "SDIO";       //Reset over SDIO
+    default:                return "";
+  }
+}
+
 void MetricsPlugin::populateMetrics() {
     response.clear();
     response += Metric{"memory", "ESP32 Memory usage", "gauge"}
@@ -57,7 +74,7 @@ void MetricsPlugin::populateMetrics() {
             .label("cores", String(ESP.getChipCores()))
             .label("model", String(ESP.getChipModel()))
             .label("revision", String(ESP.getChipRevision()))
-            .label("frequency-MHz", String(ESP.getCpuFreqMHz()))
+            .label("frequency_MHz", String(ESP.getCpuFreqMHz()))
         ).toString();
 
     Metric wifiMetric = Metric{"wifi", "WiFi Info", "gauge"}
@@ -89,6 +106,15 @@ void MetricsPlugin::populateMetrics() {
     response += Metric{"uptime", "ESP32 uptime", "gauge"}
         .entry(Metric::Entry{UPTIME}.label("unit", "seconds"))
         .toString();
+    esp_reset_reason_t reason = esp_reset_reason();
+    response += Metric{"reset_reason", "ESP32 reset reason", "gauge"}
+        .entry(Metric::Entry{static_cast<float>(reason)}
+            .label("reason", String(resetReasonName(reason)))
+        ).toString();
+    response += Metric{"cpu_temperature", "ESP32 CPU temperature", "gauge"}
+        .entry(Metric::Entry{temperatureRead()}
+            .label("unit", String("celsius"))
+        ).toString();
     for(const MetricPopulator &metricPopulator: metricPopulators) {
         response += metricPopulator().toString();
     }
@@ -103,7 +129,7 @@ String MetricsPlugin::Metric::Entry::toString() const {
         if (index++ > 0) {
             result += ",";
         }
-        result += label.first + "=" + label.second;
+        result += label.first + "=\"" + label.second + "\"";
     }
     result += "} " + String(value, 2);
     return result;
