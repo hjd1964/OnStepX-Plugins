@@ -42,7 +42,13 @@ void Power::loop() {
     for (int j = 0; j < 8; j++) {
       if (voltageSensePin[j] >= 0) {
         if (isnan(featureVoltage[j])) delay(10);
-        v = (analogRead(voltageSensePin[j])/(float)ANALOG_READ_RANGE)*3.3F;
+
+        #ifdef ESP32
+          v = analogReadMilliVolts(voltageSensePin[j])/1000.0F;
+        #else
+          v = (analogRead(voltageSensePin[j])/(float)ANALOG_READ_RANGE)*HAL_VCC;
+        #endif
+
         if (isnan(featureVoltage[j])) featureVoltage[j] = V_SENSE_FORMULA; else featureVoltage[j] = (featureVoltage[j]*6.0F + V_SENSE_FORMULA)/7.0F;
 
         #if defined(V_SENSE_LIMIT_LOW) && defined(V_SENSE_LIMIT_HIGH)
@@ -62,7 +68,13 @@ void Power::loop() {
     for (int j = 0; j < 8; j++) {
       if (currentSensePin[j] >= 0) {
         if (isnanf(featureCurrent[j])) delay(10);
-        v = (analogRead(currentSensePin[j])/(float)ANALOG_READ_RANGE)*3.3F;
+
+        #ifdef ESP32
+          v = analogReadMilliVolts(currentSensePin[j])/1000.0F;
+        #else
+          v = (analogRead(currentSensePin[j])/(float)ANALOG_READ_RANGE)*HAL_VCC;
+        #endif
+
         if (isnanf(featureCurrent[j])) featureCurrent[j] = I_SENSE_FORMULA; else featureCurrent[j] = (featureCurrent[j]*6.0F + I_SENSE_FORMULA)/7.0F;
 
         #if defined(I_SENSE_CHANNEL_MAX)
