@@ -91,3 +91,36 @@ An example implementation on how to add custom metrics is available with GPS met
   #endif
 ```
  - Now you can look at `initGpsMetrics` to see how metrics are populated.
+
+## USB Switcher
+
+An extension to the switch facility provided by the Auxiliary facilities.
+
+This plugin defines an extra set of switchable outputs designated for USB ports. This allows combination auxiliary devices, such as a on-scope mounted power-box / USB hub, to have more options available as none of the 8 Features are used for switching USB ports.
+
+You must copy the /usb directory into the OnStepX/src/plugins directory and add an entry for it in Plugins.config.h similar to the following:
+```
+#define PLUGIN1                       usb //    Can be any of the PLUGIN definition positions
+#include "usb/Usb.h"                      //    Specify the header file to include the class.
+#define PLUGIN1_COMMAND_PROCESSING     ON //    MUST be set to ON for this plugin
+#endif
+```
+All configuration is contained in the Usb.h file, in this format:
+```
+ // Plugin config
+  #define USB1_PIN                    29 //    OFF, n. I/O pin controlling the port state.    Option - 29 is just an example here
+  #define USB1_NAME           "Main Cam" //    "USB..", Name of the device being controlled.  Option
+  #define USB1_DEFAULT_STATE         OFF //    OFF, ON. State to startup in.                  Option
+  #define USB1_ON_STATE             HIGH //    HIGH, LOW Port control pin ON (active) state.  Option
+  #define USB2_PIN                   OFF //    OFF, n. I/O pin controlling the port state.    Option
+  #define USB2_NAME ... etc
+```
+A maximum of 8 USB ports can be defined.
+
+Additional serial commands are provided to control the USB ports:
+```
+:GUX[n]# - Get USB port n status
+:GUY[n]# - Get USB port n name
+:GUY0# - Get defined USB ports in format 11110000 where 1 indicates a defined port
+:SUX[n],V[1|0]# - Set USB port n to state ON (V1) or OFF (V0)
+:SUX0,V[1|0]# - Set all defined USB ports to state ON (V1) or OFF (V0)
