@@ -45,15 +45,6 @@
 #ifndef DRIVE_CONFIGURATION
 #define DRIVE_CONFIGURATION            ON //    ON, to display/modify mount, rotator, focuser settings                        Option
 #endif
-#ifndef DRIVE_MAIN_AXES_MICROSTEPS
-#define DRIVE_MAIN_AXES_MICROSTEPS     ON //    ON, to display Axis1/2 Microsteps if available.                               Option
-#endif
-#ifndef DRIVE_MAIN_AXES_CURRENT
-#define DRIVE_MAIN_AXES_CURRENT        ON //    ON, to display Axis1/2 IRUN if available.                                     Option
-#endif
-#ifndef DRIVE_MAIN_AXES_REVERSE
-#define DRIVE_MAIN_AXES_REVERSE        ON //    ON, to display Axis1/2 Reverse if available.                                  Option
-#endif
 
 // HOME OFFSET ---------------------------------------------------------------------------------------------------------------------
 #ifndef HOME_OFFSET_RANGE_AXIS1
