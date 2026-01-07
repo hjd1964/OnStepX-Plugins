@@ -22,7 +22,7 @@ void Usb::init() {
     if (myPort[i].pin != OFF) {
      pinMode(myPort[i].pin, OUTPUT);
      myPort[i].value = (-1 - myPort[i].value);
-     digitalWriteEx(myPort[i].pin, myPort[i].value);
+     digitalWriteEx(myPort[i].pin, myPort[i].value == myPort[i].active);
     }
   }
 }
@@ -38,6 +38,7 @@ bool Usb::command(char *reply, char *command, char *parameter, bool *supressFram
     if (parameter[0] == 'X') { 
       int i = parameter[1] - '1';
       if (i < 0 || i > 7)  { *commandError = CE_PARAM_FORM; return true; }
+      if (myPort[i].pin == OFF) { *commandError = CE_0; return true; }
       char s[255];
         sprintf(s, "%d", myPort[i].value);
         strcat(reply, s);
