@@ -1,11 +1,6 @@
-// ======================================================================================
-// MQTT Plugin for OnStepX and OCS - Implementation
-// ======================================================================================
-
 #include "Mqtt.h"
 
 // Compile-time warning if using default HOST_NAME
-// This message appears here (in .cpp) so it only shows once during compilation
 #if defined(HOST_NAME) && !defined(MQTT_DEVICE_ID_OVERRIDE)
   #pragma message "MQTT Plugin: Using HOST_NAME for device ID. Ensure HOST_NAME contains only letters, numbers, underscore (_), and hyphen (-). Spaces and special characters will cause runtime error."
 #endif
@@ -63,7 +58,6 @@ void Mqtt::init() {
   disconnectedSince = 0;
   firstConnectAttempt = true;
   
-  // Use strncpy for safe string copying with bounds checking
   strncpy(clientId, MQTT_CLIENT_ID, sizeof(clientId) - 1);
   clientId[sizeof(clientId) - 1] = '\0';
   
@@ -139,16 +133,13 @@ void Mqtt::poll() {
   }
 }
 
-// Check network availability using manager state and link status
 void Mqtt::checkNetwork() {
   #if OPERATIONAL_MODE == WIFI
-    // Use wifiManager state and WiFi connection status
     networkAvailable = wifiManager.active && (WiFi.status() == WL_CONNECTED);
     if (!networkAvailable && wasConnected) {
       VLF("WRN: MQTT Plugin, WiFi not connected");
     }
   #elif OPERATIONAL_MODE >= ETHERNET_FIRST && OPERATIONAL_MODE <= ETHERNET_LAST
-    // Use ethernetManager state and Ethernet link status
     networkAvailable = ethernetManager.active && (Ethernet.linkStatus() == LinkON);
     if (!networkAvailable && wasConnected) {
       VLF("WRN: MQTT Plugin, Ethernet not connected");
@@ -239,8 +230,6 @@ void Mqtt::processCommand(const char* command) {
   strncpy(cmdCopy, command, MQTT_CMD_BUFFER_SIZE - 1);
   cmdCopy[MQTT_CMD_BUFFER_SIZE - 1] = '\0';
   
-  // Parse command into command and parameter parts
-  // OnStep commands are format :CCCppp# where CCC is command, ppp is parameter
   char cmd[MQTT_CMD_BUFFER_SIZE] = "";
   char param[MQTT_CMD_BUFFER_SIZE] = "";
   
