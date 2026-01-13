@@ -377,12 +377,22 @@ This provides a good balance between reliability and performance for telescope c
 
 ### Platform Abstraction
 
-The plugin uses conditional compilation to support both OnStepX and OCS:
+The plugin uses compile-time detection to support both OnStepX and OCS automatically:
 
-- **OnStepX**: Uses `onStep` controller and `commandProcessing()` method
-- **OCS**: Uses `observatory` controller and `command()` method
+- **Platform Detection**: Automatically detects platform based on distinctive configuration defines:
+  - OCS detected via `WATCHDOG` define
+  - OnStepX detected via `STATUS_LED` define
+  - Compile error if neither found
 
-Platform detection is automatic based on `FirmwareName` - no user configuration needed.
+- **Method Naming**: Adapts to platform requirements:
+  - **OCS**: Uses `command()` method
+  - **OnStepX**: Uses `commandProcessing()` method
+
+- **Controller Selection**: Uses correct controller object:
+  - **OCS**: `observatory` controller
+  - **OnStepX**: `onStep` controller
+
+Platform detection is automatic - no user configuration needed. The plugin will fail compilation with a clear error if the platform cannot be detected.
 
 ## Security Considerations
 
@@ -543,15 +553,48 @@ If you don't see reconnection messages in the echo topic:
 3. Connection may be very stable (reconnection messages only appear after disconnect/reconnect)
 4. Check serial monitor logs for "Connection lost" and "Connection restored" messages
 
-### Compile error about invalid MQTT_DEVICE_ID characters
+### Compile error about MQTT_DEVICE_ID
 
-The plugin validates that MQTT_DEVICE_ID contains only MQTT-safe characters. If you see an error like:
+If you see an error during compilation about MQTT_DEVICE_ID:
 
 ```
-MQTT Plugin: MQTT_DEVICE_ID contains invalid characters...
+MQTT Plugin: MQTT_DEVICE_ID must be defined (should default to HOST_NAME)
 ```
 
-**Fix**: Edit `Mqtt.h` and ensure MQTT_DEVICE_ID uses only:
+**Cause**: HOST_NAME is not defined in your main Config.h file.
+
+**Fix**: Ensure HOST_NAME is defined in your Config.h:
+```cpp
+#define HOST_NAME "Telescope"
+```
+
+Or override MQTT_DEVICE_ID in Mqtt.h:
+```cpp
+#define MQTT_DEVICE_ID_OVERRIDE
+#define MQTT_DEVICE_ID "MyDevice"
+```
+
+### Compile error about platform detection
+
+If you see an error like:
+
+```
+MQTT Plugin: Cannot detect platform. Neither WATCHDOG (OCS) nor STATUS_LED (OnStepX) found.
+```
+
+**Cause**: The plugin cannot determine if you're using OnStepX or OCS.
+
+**Fix**: Ensure you're including the plugin in Plugins.config.h AFTER the main configuration is loaded. The plugin should be included from the main project, not standalone.
+
+### Runtime error about invalid MQTT_DEVICE_ID characters
+
+The plugin validates MQTT_DEVICE_ID at startup. If you see an error like:
+
+```
+ERR: MQTT Plugin, MQTT_DEVICE_ID contains invalid character
+```
+
+**Fix**: Edit the MQTT_DEVICE_ID (or HOST_NAME) to use only:
 - Letters: A-Z, a-z
 - Numbers: 0-9  
 - Underscore: _
@@ -566,8 +609,6 @@ MQTT Plugin: MQTT_DEVICE_ID contains invalid characters...
 - `"Telescope"`
 - `"Observatory_Main"`
 - `"Device-1"`
-
-If you're using the default (HOST_NAME), check your HOST_NAME in the main Config.h file.
 
 ## Common Commands
 
@@ -625,6 +666,13 @@ For questions and support:
 
 ## Version History
 
+- v2.3 - Improved compile-time validation
+  - Automatic platform detection via WATCHDOG (OCS) and STATUS_LED (OnStepX)
+  - Compile-time validation of platform detection
+  - Hybrid device ID validation (compile-time basic checks + runtime character validation)
+  - Clear compile-time error messages for configuration issues
+  - Added platform detection logging during initialization
+  
 - v2.2 - Connection management and QoS improvements
   - QoS 1 (at-least-once delivery) now used for all published messages
   - Automatic reconnection with downtime tracking
