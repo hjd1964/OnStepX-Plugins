@@ -216,7 +216,7 @@ bool Status::auxiliaryScan() {
       if (!valid) { for (uint8_t j = 0; j < 8; j++) feature[j].purpose = 0; auxiliaryFound = SD_FALSE; return false; }
 
       if (strlen(out) > 1) {
-        purpose_str = strstr(out,",");
+        purpose_str = strstr(out, ",");
         if (purpose_str) {
           purpose_str[0] = 0;
           purpose_str++;
