@@ -28,7 +28,7 @@ void ElegantOTAPlugin::init() {
 #endif
 }
 
-bool ElegantOTAPlugin::command(char reply[], char command[], char parameter[], bool *supressFrame, bool *numericReply, CommandError *commandError) {
+bool ElegantOTAPlugin::command(char reply[], char command[], char parameter[], bool *suppressFrame, bool *numericReply, CommandError *commandError) {
 #ifdef __ONSTEP_HAS_WEBSERVER
   return false;
 #else

@@ -28,8 +28,8 @@ void Usb::init() {
 }
 
 // Command process is a copy and paste from Features.command.cpp with unwanted stripped out and names changed
-bool Usb::command(char *reply, char *command, char *parameter, bool *supressFrame, bool *numericReply, CommandError *commandError) {
-  *supressFrame = false;
+bool Usb::command(char *reply, char *command, char *parameter, bool *suppressFrame, bool *numericReply, CommandError *commandError) {
+  *suppressFrame = false;
 
   // Get USB commands
   if (command[0] == 'G' && command[1] == 'U') {
