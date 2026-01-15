@@ -1,6 +1,9 @@
 #include "Mqtt.h"
 
+#include "../../lib/tasks/OnTask.h"
+
 // Compile-time warning if using default HOST_NAME
+// This message appears here (in .cpp) so it only shows once during compilation
 #if defined(HOST_NAME) && !defined(MQTT_DEVICE_ID_OVERRIDE)
   #pragma message "MQTT Plugin: Using HOST_NAME for device ID. Ensure HOST_NAME contains only letters, numbers, underscore (_), and hyphen (-). Spaces and special characters will cause runtime error."
 #endif
@@ -8,12 +11,13 @@
 Mqtt mqtt;
 Mqtt* Mqtt::instance = nullptr;
 
-// Include platform-specific controller headers
 #if defined(WATCHDOG)
   #include "../../observatory/Observatory.h"
 #else
   #include "../../telescope/Telescope.h"
 #endif
+
+void mqttWrapper() { mqtt.poll(); }
 
 bool Mqtt::validateDeviceId(const char* deviceId) {
   if (!deviceId || deviceId[0] == '\0') {
@@ -43,7 +47,7 @@ void Mqtt::init() {
   
   VLF("MSG: MQTT Plugin, initializing");
   
-  if (!validateDeviceId(MQTT_TOSTRING(MQTT_DEVICE_ID))) {
+  if (!validateDeviceId(MQTT_DEVICE_ID)) {
     DLF("ERR: MQTT Plugin, initialization failed due to invalid MQTT_DEVICE_ID");
     DLF("ERR: MQTT Plugin, check HOST_NAME or override MQTT_DEVICE_ID in Mqtt.h");
     return;
@@ -81,7 +85,7 @@ void Mqtt::init() {
   
   VLF("MSG: MQTT Plugin, configured");
   VF("MSG: MQTT Plugin, platform: "); VL(MQTT_PLATFORM);
-  VF("MSG: MQTT Plugin, device ID: "); VL(MQTT_TOSTRING(MQTT_DEVICE_ID));
+  VF("MSG: MQTT Plugin, device ID: "); VL(MQTT_DEVICE_ID);
   VF("MSG: MQTT Plugin, broker: "); V(MQTT_BROKER_HOST); V(":"); VL(MQTT_BROKER_PORT);
   VF("MSG: MQTT Plugin, client ID: "); VL(clientId);
   VF("MSG: MQTT Plugin, command topic: "); VL(topicCommand);
@@ -95,6 +99,13 @@ void Mqtt::init() {
   
   initialized = true;
   VLF("MSG: MQTT Plugin, initialization complete");
+  
+  VF("MSG: MQTT Plugin, start poll task (rate 100ms priority 7)... ");
+  if (tasks.add(100, 0, true, 7, mqttWrapper, "MQTTpol")) {
+    VLF("success");
+  } else {
+    VLF("FAILED!");
+  }
 }
 
 void Mqtt::poll() {
@@ -230,6 +241,8 @@ void Mqtt::processCommand(const char* command) {
   strncpy(cmdCopy, command, MQTT_CMD_BUFFER_SIZE - 1);
   cmdCopy[MQTT_CMD_BUFFER_SIZE - 1] = '\0';
   
+  // Parse command into command and parameter parts
+  // OnStep commands are format :CCCppp# where CCC is command, ppp is parameter
   char cmd[MQTT_CMD_BUFFER_SIZE] = "";
   char param[MQTT_CMD_BUFFER_SIZE] = "";
   
@@ -267,6 +280,13 @@ void Mqtt::processCommand(const char* command) {
   #endif
   
   if (success || cmdError == CE_NONE) {
+    // Add frame if not suppressed
+    if (!supressFrame && responseBuffer[0] != '\0') {
+      size_t len = strlen(responseBuffer);
+      if (len < MQTT_MSG_BUFFER_SIZE - 1 && responseBuffer[len-1] != '#') {
+        strcat(responseBuffer, "#");
+      }
+    }
     publishCommandEcho(command, responseBuffer, "MQTT");
   } else {
     snprintf(responseBuffer, sizeof(responseBuffer), "ERROR: %d", (int)cmdError);
@@ -287,9 +307,6 @@ void Mqtt::publishCommandEcho(const char* command, const char* response, const c
   
   char message[MQTT_MSG_BUFFER_SIZE];
   
-  // Use snprintf with precision specifiers to safely truncate long strings
-  // Format string adds ~37 chars: "Received: ", ", Response: ", ", Source: "
-  // Limit command to 150 chars and response to 250 chars for safety
   snprintf(message, sizeof(message), "Received: %.150s, Response: %.250s, Source: %s", 
            command, response, source);
   
@@ -309,8 +326,8 @@ bool Mqtt::commandProcessing(char *reply, char *command, char *parameter, bool *
 }
 #endif
 
+// Broadcast commands from other channels to MQTT while allowing normal processing
 bool Mqtt::processCommandChannel(char *reply, char *command, char *parameter, bool *supressFrame, bool *numericReply, CommandError *commandError) {
-  // Broadcast commands from other channels to MQTT while allowing normal processing
   
   if (!initialized || !mqttClient.connected()) return false;
   
@@ -319,13 +336,15 @@ bool Mqtt::processCommandChannel(char *reply, char *command, char *parameter, bo
   char fullCommand[MQTT_CMD_BUFFER_SIZE];
   buildCommandString(fullCommand, sizeof(fullCommand), command, parameter);
   
-  if (strlen(fullCommand) > 0) {
-    const char* response = (reply != nullptr && strlen(reply) > 0) ? reply : "<no response>";
+  if (strlen(fullCommand) > 0 && strlen(fullCommand) < MQTT_CMD_BUFFER_SIZE - 2) {
+    char framedCommand[MQTT_CMD_BUFFER_SIZE];
+    snprintf(framedCommand, sizeof(framedCommand), ":%s#", fullCommand);
     
-    publishCommandEcho(fullCommand, response, "OTHER");
+    char message[MQTT_MSG_BUFFER_SIZE];
+    snprintf(message, sizeof(message), "Received: %.450s, Source: OTHER", framedCommand);
+    publishMessage(topicEcho, message);
     
-    VF("MSG: MQTT Plugin, broadcast command from other channel: "); V(fullCommand);
-    VF(", Response: "); VL(response);
+    VF("MSG: MQTT Plugin, broadcast command from other channel: "); VL(framedCommand);
   }
   
   return false;

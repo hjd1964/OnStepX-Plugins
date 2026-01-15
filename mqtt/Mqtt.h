@@ -2,17 +2,17 @@
 // MQTT Plugin for OnStepX and OCS
 // Copyright (C) 2026
 //
-// This plugin creates a bi-directional bridge between MQTT and OnStep/Observatory
-// commands. It receives MQTT messages in command format and publishes both the
-// received command and the response. It also broadcasts commands received from
-// other command channels.
+// This plugin creates a bi-directional bridge between MQTT and OnStepX/OCS commands.
+// It receives MQTT messages in command format and publishes both the received command 
+// and the response. It also broadcasts commands received from other command channels.
 // ======================================================================================
 
 #pragma once
 
 #include "../../lib/commands/CommandErrors.h"
 #include "../../Common.h"
-#include <PubSubClient.h> // MQTT client library https://github.com/knolleary/pubsubclient
+
+#include <PubSubClient.h>           // https://github.com/knolleary/pubsubclient
 
 // -------------------------------------------------------------------------------------------------
 // PLATFORM DETECTION
@@ -21,7 +21,7 @@
 #elif defined(STATUS_LED)
   #define MQTT_PLATFORM "OnStepX"
 #else
-  #error "MQTT Plugin: Cannot detect platform. Neither WATCHDOG (OCS) nor STATUS_LED (OnStepX) found."
+  #error "MQTT Plugin: Cannot detect platform. Neither WATCHDOG (OCS) nor STATUS_LED (OnStepX) found. Ensure plugin is included after main configuration."
 #endif
 
 // -------------------------------------------------------------------------------------------------
@@ -31,39 +31,40 @@
 // This allows multiple controllers to connect to the same MQTT broker with unique topics
 // Override this if you need different MQTT topic names than your network hostname
 #ifndef MQTT_DEVICE_ID
-  #define MQTT_DEVICE_ID       HOST_NAME         //    HOST_NAME, Unique device identifier for MQTT topics.            Option
+  #define MQTT_DEVICE_ID       HOST_NAME         //    HOST_NAME, Unique device identifier for MQTT topics.             Option
 #endif
-// Device ID will be validated at runtime for valid characters (A-Z, a-z, 0-9, _, -)
 
-#define MQTT_BROKER_HOST       "192.168.1.100"  //    "...", MQTT broker IP address or hostname.                       Option
-#define MQTT_BROKER_PORT       1883              //    1883, MQTT broker port.                                         Option
-#define MQTT_USERNAME          "onstep"          //    "onstep", MQTT username for authentication (empty "" = none).   Option
-#define MQTT_PASSWORD          "password"        //    "password", MQTT password for authentication (empty "" = none). Option
+// Compile-time check that MQTT_DEVICE_ID is not an empty string
+// HOST_NAME is always a string literal like "OCS" or ""
+#if defined(MQTT_DEVICE_ID)
+  static_assert(sizeof(MQTT_DEVICE_ID) > 1, "MQTT_DEVICE_ID cannot be empty - set HOST_NAME in Config.h");
+#endif
+
+#define MQTT_BROKER_HOST       "192.168.1.100"   //    "...", MQTT broker IP address or hostname.                       Option
+#define MQTT_BROKER_PORT       1883              //    1883, MQTT broker port.                                          Option
+#define MQTT_CLIENT_ID         MQTT_DEVICE_ID    //    MQTT_DEVICE_ID, MQTT client identifier.                          Option
+
+#define MQTT_USERNAME          "onstep"          //    "onstep", MQTT username for authentication (empty "" = none).    Option
+#define MQTT_PASSWORD          "password"        //    "password", MQTT password for authentication (empty "" = none).  Option
 
 // -------------------------------------------------------------------------------------------------
 
-// Helper macros for string concatenation in preprocessor
-#define MQTT_STRINGIFY(x) #x
-#define MQTT_TOSTRING(x) MQTT_STRINGIFY(x)
-#define MQTT_CONCAT(a, b) MQTT_TOSTRING(a) "/" MQTT_TOSTRING(b)
+#define MQTT_TOPIC_COMMAND     MQTT_DEVICE_ID "/cmd"
+#define MQTT_TOPIC_RESPONSE    MQTT_DEVICE_ID "/response"
+#define MQTT_TOPIC_ECHO        MQTT_DEVICE_ID "/echo"
+#define MQTT_TOPIC_STATUS      MQTT_DEVICE_ID "/status"
 
-#define MQTT_CLIENT_ID         MQTT_TOSTRING(MQTT_DEVICE_ID)
-#define MQTT_TOPIC_COMMAND     MQTT_CONCAT(MQTT_DEVICE_ID, cmd)      //    MQTT_DEVICE_ID "/cmd", Topic to receive commands.
-#define MQTT_TOPIC_RESPONSE    MQTT_CONCAT(MQTT_DEVICE_ID, response) //    MQTT_DEVICE_ID "/response", Topic to publish responses.
-#define MQTT_TOPIC_ECHO        MQTT_CONCAT(MQTT_DEVICE_ID, echo)     //    MQTT_DEVICE_ID "/echo", Topic to echo all commands.
-#define MQTT_TOPIC_STATUS      MQTT_CONCAT(MQTT_DEVICE_ID, status)   //    MQTT_DEVICE_ID "/status", Topic for online/offline.
-
-#define MQTT_RECONNECT_DELAY   5000              //    5000, Delay between reconnection attempts (milliseconds).
+#define MQTT_RECONNECT_DELAY   5000
 
 // Undefine PubSubClient's MQTT_KEEPALIVE and define our own
 #ifdef MQTT_KEEPALIVE
   #undef MQTT_KEEPALIVE
 #endif
-#define MQTT_KEEPALIVE         60                //    60, MQTT keepalive interval (seconds). 
-#define MQTT_QOS               1                 //    0, 1, 2. MQTT Quality of Service level.
-#define MQTT_RETAIN            false             //    true, false. Retain messages on broker.
-#define MQTT_CMD_BUFFER_SIZE   256               //    256, Command buffer size (bytes). Used for cmdBuffer.
-#define MQTT_MSG_BUFFER_SIZE   512               //    512, Message buffer size (bytes). Used for responseBuffer.
+#define MQTT_KEEPALIVE         60
+#define MQTT_QOS               1
+#define MQTT_RETAIN            false
+#define MQTT_CMD_BUFFER_SIZE   256
+#define MQTT_MSG_BUFFER_SIZE   512
 
 // -------------------------------------------------------------------------------------------------
 
