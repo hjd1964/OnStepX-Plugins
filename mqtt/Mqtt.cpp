@@ -84,7 +84,6 @@ void Mqtt::init() {
   mqttClient.setBufferSize(MQTT_MSG_BUFFER_SIZE);
   
   VLF("MSG: MQTT Plugin, configured");
-  VF("MSG: MQTT Plugin, platform: "); VL(MQTT_PLATFORM);
   VF("MSG: MQTT Plugin, device ID: "); VL(MQTT_DEVICE_ID);
   VF("MSG: MQTT Plugin, broker: "); V(MQTT_BROKER_HOST); V(":"); VL(MQTT_BROKER_PORT);
   VF("MSG: MQTT Plugin, client ID: "); VL(clientId);
@@ -316,18 +315,7 @@ void Mqtt::publishCommandEcho(const char* command, const char* response, const c
   VF("MSG: MQTT Plugin, published echo: "); VL(message);
 }
 
-#if defined(WATCHDOG)
 bool Mqtt::command(char reply[], char command[], char parameter[], bool *supressFrame, bool *numericReply, CommandError *commandError) {
-  return processCommandChannel(reply, command, parameter, supressFrame, numericReply, commandError);
-}
-#else
-bool Mqtt::commandProcessing(char *reply, char *command, char *parameter, bool *supressFrame, bool *numericReply, CommandError *commandError) {
-  return processCommandChannel(reply, command, parameter, supressFrame, numericReply, commandError);
-}
-#endif
-
-// Broadcast commands from other channels to MQTT while allowing normal processing
-bool Mqtt::processCommandChannel(char *reply, char *command, char *parameter, bool *supressFrame, bool *numericReply, CommandError *commandError) {
   
   if (!initialized || !mqttClient.connected()) return false;
   
@@ -348,4 +336,30 @@ bool Mqtt::processCommandChannel(char *reply, char *command, char *parameter, bo
   }
   
   return false;
+  
+  //return processCommandChannel(reply, command, parameter, supressFrame, numericReply, commandError);
 }
+
+// Broadcast commands from other channels to MQTT while allowing normal processing
+//bool Mqtt::processCommandChannel(char *reply, char *command, char *parameter, bool *supressFrame, bool *numericReply, CommandError *commandError) {
+//  
+//  if (!initialized || !mqttClient.connected()) return false;
+//  
+//  if (processingMqttCommand) return false;
+//  
+//  char fullCommand[MQTT_CMD_BUFFER_SIZE];
+//  buildCommandString(fullCommand, sizeof(fullCommand), command, parameter);
+//  
+//  if (strlen(fullCommand) > 0 && strlen(fullCommand) < MQTT_CMD_BUFFER_SIZE - 2) {
+//    char framedCommand[MQTT_CMD_BUFFER_SIZE];
+//    snprintf(framedCommand, sizeof(framedCommand), ":%s#", fullCommand);
+//    
+//    char message[MQTT_MSG_BUFFER_SIZE];
+//    snprintf(message, sizeof(message), "Received: %.450s, Source: OTHER", framedCommand);
+//    publishMessage(topicEcho, message);
+//    
+//    VF("MSG: MQTT Plugin, broadcast command from other channel: "); VL(framedCommand);
+//  }
+//  
+//  return false;
+//}

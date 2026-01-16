@@ -1,7 +1,5 @@
 // ======================================================================================
 // MQTT Plugin for OnStepX and OCS
-// Copyright (C) 2026
-//
 // This plugin creates a bi-directional bridge between MQTT and OnStepX/OCS commands.
 // It receives MQTT messages in command format and publishes both the received command 
 // and the response. It also broadcasts commands received from other command channels.
@@ -12,17 +10,24 @@
 #include "../../lib/commands/CommandErrors.h"
 #include "../../Common.h"
 
+#if OPERATIONAL_MODE == WIFI
+  #if defined(ESP32)
+    #include <WiFi.h>
+    #include <WiFiClient.h>
+  #elif defined(ESP8266)
+    #include <ESP8266WiFi.h>
+    #include <WiFiClient.h>
+  #endif
+#elif OPERATIONAL_MODE == ETHERNET_W5100 || OPERATIONAL_MODE == ETHERNET_W5500
+  #ifdef ESP8266
+    #include <Ethernet2.h>
+  #else
+    #include <Ethernet.h>
+  #endif
+#endif
+
 #include <PubSubClient.h>           // https://github.com/knolleary/pubsubclient
 
-// -------------------------------------------------------------------------------------------------
-// PLATFORM DETECTION
-#if defined(WATCHDOG)
-  #define MQTT_PLATFORM "OCS"
-#elif defined(STATUS_LED)
-  #define MQTT_PLATFORM "OnStepX"
-#else
-  #error "MQTT Plugin: Cannot detect platform. Neither WATCHDOG (OCS) nor STATUS_LED (OnStepX) found. Ensure plugin is included after main configuration."
-#endif
 
 // -------------------------------------------------------------------------------------------------
 // PLUGIN CONFIGURATION
@@ -72,12 +77,7 @@ class Mqtt {
   public:
     void init();
     void poll();
-    
-    #if defined(WATCHDOG)
-      bool command(char reply[], char command[], char parameter[], bool *supressFrame, bool *numericReply, CommandError *commandError);
-    #else
-      bool commandProcessing(char *reply, char *command, char *parameter, bool *supressFrame, bool *numericReply, CommandError *commandError);
-    #endif
+    bool command(char reply[], char command[], char parameter[], bool *supressFrame, bool *numericReply, CommandError *commandError);
     
   private:
     #if OPERATIONAL_MODE == WIFI
@@ -119,7 +119,7 @@ class Mqtt {
     void publishMessage(const char* topic, const char* message, bool retain = MQTT_RETAIN);
     void publishCommandEcho(const char* command, const char* response, const char* source);
     void buildCommandString(char* dest, size_t destSize, const char* command, const char* parameter);
-    bool processCommandChannel(char *reply, char *command, char *parameter, bool *supressFrame, bool *numericReply, CommandError *commandError);
+    //bool processCommandChannel(char *reply, char *command, char *parameter, bool *supressFrame, bool *numericReply, CommandError *commandError);
     bool validateDeviceId(const char* deviceId);
 };
 
