@@ -119,7 +119,6 @@ class Mqtt {
     void publishMessage(const char* topic, const char* message, bool retain = MQTT_RETAIN);
     void publishCommandEcho(const char* command, const char* response, const char* source);
     void buildCommandString(char* dest, size_t destSize, const char* command, const char* parameter);
-    //bool processCommandChannel(char *reply, char *command, char *parameter, bool *supressFrame, bool *numericReply, CommandError *commandError);
     bool validateDeviceId(const char* deviceId);
 };
 

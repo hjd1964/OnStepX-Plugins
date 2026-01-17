@@ -4,11 +4,8 @@
 
 #include "Mqtt.h"
 
-// Include the task system
 #include "../../lib/tasks/OnTask.h"
 
-// Compile-time warning if using default HOST_NAME
-// This message appears here (in .cpp) so it only shows once during compilation
 #if defined(HOST_NAME) && !defined(MQTT_DEVICE_ID_OVERRIDE)
   #pragma message "MQTT Plugin: Using HOST_NAME for device ID. Ensure HOST_NAME contains only letters, numbers, underscore (_), and hyphen (-). Spaces and special characters will cause runtime error."
 #endif
@@ -16,14 +13,12 @@
 Mqtt mqtt;
 Mqtt* Mqtt::instance = nullptr;
 
-// Include platform-specific controller headers
 #if defined(WATCHDOG)
   #include "../../observatory/Observatory.h"
 #else
   #include "../../telescope/Telescope.h"
 #endif
 
-// Wrapper function for task system
 void mqttWrapper() { mqtt.poll(); }
 
 bool Mqtt::validateDeviceId(const char* deviceId) {
@@ -107,7 +102,6 @@ void Mqtt::init() {
   initialized = true;
   VLF("MSG: MQTT Plugin, initialization complete");
   
-  // Register poll task to run every 100ms at priority 7
   VF("MSG: MQTT Plugin, start poll task (rate 100ms priority 7)... ");
   if (tasks.add(100, 0, true, 7, mqttWrapper, "MQTTpol")) {
     VLF("success");
@@ -152,16 +146,13 @@ void Mqtt::poll() {
   }
 }
 
-// Check network availability using manager state and link status
 void Mqtt::checkNetwork() {
   #if OPERATIONAL_MODE == WIFI
-    // Use wifiManager state and WiFi connection status
     networkAvailable = wifiManager.active && (WiFi.status() == WL_CONNECTED);
     if (!networkAvailable && wasConnected) {
       VLF("WRN: MQTT Plugin, WiFi not connected");
     }
   #elif OPERATIONAL_MODE >= ETHERNET_FIRST && OPERATIONAL_MODE <= ETHERNET_LAST
-    // Use ethernetManager state and Ethernet link status
     networkAvailable = ethernetManager.active && (Ethernet.linkStatus() == LinkON);
     if (!networkAvailable && wasConnected) {
       VLF("WRN: MQTT Plugin, Ethernet not connected");

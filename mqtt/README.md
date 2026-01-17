@@ -44,6 +44,7 @@ Add an entry in `Plugins.config.h` (identical for both OnStepX and OCS):
 #define PLUGIN1_COMMAND_PROCESSING    ON
 #include "mqtt/Mqtt.h"
 ```
+**Note: If also using other Plugins that make use of Command Processing then this MQTT Plugin must be configured before them eg. define MQTT as  PLUGIN1. This is necessary in order to be able to pass commands to the other Plugin from MQTT.**
 
 Install the PubSubClient library:
   Open Arduino IDE
