@@ -29,6 +29,8 @@ void siteTile(String &data)
   data.concat(temp);
   sprintf_P(temp, html_sidereal, state.lastStr);
   data.concat(temp);
+  www.sendContentAndClear(data);
+  
   sprintf_P(temp, html_site, state.latitudeStr, state.longitudeStr);
   data.concat(temp);
   data.concat(FPSTR(html_setDateTime));
@@ -42,21 +44,13 @@ void siteTile(String &data)
 
   // Latitude
   data.concat(FPSTR(html_latMsg));
-  if (status.getVersionMajor() > 3)
-  {
-    if (!onStep.command(":GtH#", reply))
-      strcpy(reply, "+00*00:00");
-  }
-  else
-  {
-    if (!onStep.command(":Gt#", reply))
-      strcpy(reply, "+00*00");
-  }
+  if (!onStep.command(status.getVersionMajor() > 3 ? ":GtH#" : ":Gt#", reply))
+    strcpy(reply, status.getVersionMajor() > 3 ? "+00*00:00" : "+00*00");
   reply[3] = 0;
   reply[6] = 0;
   reply[9] = 0;
   if (reply[0] == '+') reply[0] = '0';
-  stripNum(reply);
+  convert.stripNumericStr(reply);
   sprintf_P(temp, html_ninput_wide, "t1", reply, "-90", "90", "&deg;");
   data.concat(temp);
   sprintf_P(temp, html_ninput, "t2", &reply[4], "0", "60", "'");
@@ -71,24 +65,13 @@ void siteTile(String &data)
 
   // Longitude
   data.concat(FPSTR(html_longMsg));
-  if (status.getVersionMajor() > 3)
-  {
-    if (!onStep.command(":GgH#", reply))
-      strcpy(reply, "+000*00:00");
-  }
-  else
-  {
-    if (!onStep.command(":Gg#", reply))
-      strcpy(reply, "+000*00");
-  }
+  if (!onStep.command(status.getVersionMajor() > 3 ? ":GgH#" : ":Gg#", reply))
+    strcpy(reply, status.getVersionMajor() > 3 ? "+000*00:00" : "+000*00");
   reply[4] = 0;
   reply[7] = 0;
-  reply[10] = 0; // separate parts into strings
-  if (reply[0] == '+')
-    reply[0] = '0'; // remove +
-  stripNum(reply);  // get rid of white space
-  while (reply[0] == '0' && strlen(reply) > 1)
-    memmove(&reply[0], &reply[1], strlen(reply)); // remove leading 0's
+  reply[10] = 0;
+  if (reply[0] == '+') reply[0] = '0';
+  convert.stripNumericStr(reply);
   sprintf_P(temp, html_ninput_wide, "g1", reply, "-180", "180", "&deg;");
   data.concat(temp);
   sprintf_P(temp, html_ninput, "g2", &reply[5], "0", "60", "'");
@@ -104,9 +87,9 @@ void siteTile(String &data)
   // UTC Offset
   data.concat(FPSTR(html_offsetMsg));
   if (!onStep.command(":GG#", reply)) strcpy(reply, "+00");
-  reply[3] = 0; // deg. part only
-  if (reply[0] == '+') reply[0] = '0'; // remove +
-  stripNum(reply);  // get rid of white space
+  reply[3] = 0;
+  if (reply[0] == '+') reply[0] = '0';
+  convert.stripNumericStr(reply);
   sprintf_P(temp, html_ninput_wide, "u1", reply, "-14", "12", "h");
   data.concat(temp);
   sprintf_P(temp, html_offsetMin, reply[4] == '0' ? "selected" : "", reply[4] == '3' ? "selected" : "", reply[4] == '4' ? "selected" : "");
@@ -138,7 +121,7 @@ void siteTileAjax(String &data)
 extern void siteTileGet()
 {
   String v, v1, v2;
-  int16_t i;
+  int16_t i, sign;
   char temp[80];
 
   // Date/Time
@@ -191,44 +174,46 @@ extern void siteTileGet()
   // Location
   v = www.arg("g1");  // long deg
   v1 = www.arg("g2"); // long min
-  if (status.getVersionMajor() > 3)
-    v2 = www.arg("g3");
-  else
-    v2 = "0"; // long sec
-  if (!v.equals(EmptyStr) && !v1.equals(EmptyStr) && !v2.equals(EmptyStr))
-  {
-    if (v.toInt() >= -180 && v.toInt() <= 180 && v1.toInt() >= 0 && v1.toInt() <= 60 && v2.toInt() >= 0 && v2.toInt() <= 60)
+  if (status.getVersionMajor() > 3) v2 = www.arg("g3"); else v2 = "0"; // long sec
+  if (!v.equals(EmptyStr) && !v1.equals(EmptyStr) && !v2.equals(EmptyStr)) {
+    if (v.charAt(0) == '-') sign = '-'; else sign = '+';
+    int16_t d = abs(v.toInt());
+    int16_t m = v1.toInt();
+    int16_t s = v2.toInt();
+    if (d >= 0 && d <= 180 && m >= 0 && m <= 60 && s >= 0 && s <= 60)
     {
       if (status.getVersionMajor() > 3)
-        sprintf(temp, ":Sg%+04d*%02d:%02d#", (int16_t)v.toInt(), (int16_t)v1.toInt(), (int16_t)v2.toInt());
+        sprintf(temp, ":Sg%c%03d*%02d:%02d#", sign, d, m, s);
       else
-        sprintf(temp, ":Sg%+04d*%02d#", (int16_t)v.toInt(), (int16_t)v1.toInt());
+        sprintf(temp, ":Sg%c%03d*%02d#", sign, d, m);
       onStep.commandBool(temp);
     }
   }
 
   v = www.arg("t1");  // lat deg
   v1 = www.arg("t2"); // lat min
-  if (status.getVersionMajor() > 3)
-    v2 = www.arg("t3");
-  else
-    v2 = "0"; // lat sec
-  if (!v.equals(EmptyStr) && !v1.equals(EmptyStr) && !v2.equals(EmptyStr))
-  {
-    if (v.toInt() >= -90 && v.toInt() <= 90 && v1.toInt() >= 0 && v1.toInt() <= 60 && v2.toInt() >= 0 && v2.toInt() <= 60)
+  if (status.getVersionMajor() > 3) v2 = www.arg("t3"); else v2 = "0"; // lat sec
+  if (!v.equals(EmptyStr) && !v1.equals(EmptyStr) && !v2.equals(EmptyStr)) {
+    if (v.charAt(0) == '-') sign = '-'; else sign = '+';
+    int16_t d = abs(v.toInt());
+    int16_t m = v1.toInt();
+    int16_t s = v2.toInt();
+    if (d >= 0 && d <= 90 && m >= 0 && m <= 60 && s >= 0 && s <= 60)
     {
-      sprintf(temp, ":St%+03d*%02d:%02d#", (int16_t)v.toInt(), (int16_t)v1.toInt(), (int16_t)v2.toInt());
+      sprintf(temp, ":St%c%02d*%02d:%02d#", sign, d, m, s);
       onStep.commandBool(temp);
     }
   }
 
   v = www.arg("u1");  // UT offset hrs
   v1 = www.arg("u2"); // UT offset min
-  if (!v.equals(EmptyStr) && !v1.equals(EmptyStr))
-  {
-    if (v.toInt() >= -14 && v.toInt() <= 12 && (v1.toInt() == 0 || v1.toInt() == 30 || v1.toInt() == 45))
+  if (!v.equals(EmptyStr) && !v1.equals(EmptyStr)) {
+    if (v.charAt(0) == '-') sign = '-'; else sign = '+';
+    int16_t h = abs(v.toInt());
+    int16_t m = v1.toInt();
+    if (v.toInt() >= -14 && h <= 12 && (m == 0 || m == 30 || m == 45))
     {
-      sprintf(temp, ":SG%+03d:%02d#", (int16_t)v.toInt(), (int16_t)v1.toInt());
+      sprintf(temp, ":SG%c%02d:%02d#", sign, h, m);
       onStep.commandBool(temp);
     }
   }

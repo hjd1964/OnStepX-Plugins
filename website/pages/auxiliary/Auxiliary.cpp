@@ -5,6 +5,9 @@
 #include "../Page.h"
 #include "../Pages.common.h"
 
+#include "../../../../lib/convert/Convert.h"
+
+extern void handleNotFound();
 void processAuxGet();
 
 void handleAux() {
@@ -12,6 +15,7 @@ void handleAux() {
   char temp1[80] = "";
 
   state.updateAuxiliary(false, true);
+  if (status.auxiliaryFound != SD_TRUE) { handleNotFound(); return; }
 
   SERIAL_ONSTEP.setTimeout(webTimeout);
   onStep.serialRecvFlush();
@@ -81,23 +85,21 @@ void handleAux() {
       sprintf_P(temp, html_tile_beg, "27em", "8em", title); data.concat(temp);
 
       data.concat(F("<div style='float: right; text-align: right;' class='c'>"));
-      #if defined(V_SENSE_PINS) && defined(V_SENSE_FORMULA)
-        int voltageSensePin[8] = V_SENSE_PINS;
-        if (voltageSensePin[i] >= 0) {
-          sprintf(temp,"<span id='vout%d'>?</span>V", i + 1);
-          data.concat(temp);
-        }
-        #if defined(I_SENSE_PINS) && defined(I_SENSE_FORMULA)
-          data.concat(" @ ");
-        #endif
-      #endif
-      #if defined(I_SENSE_PINS) && defined(I_SENSE_FORMULA)
-        int currentSensePin[8] = I_SENSE_PINS;
-        if (currentSensePin[i] >= 0) {
-          sprintf(temp,"<span id='iout%d'>?</span>A", i + 1);
-          data.concat(temp);
-        }
-      #endif
+
+      float voltageV = state.featureVoltage();
+      float currentI = state.featureCurrent();
+
+      if (!isnan(voltageV)) {
+        sprintf(temp,"<span id='vout%d'>?</span>V", i + 1);
+        data.concat(temp);
+        if (!isnan(currentI)) data.concat(" @ ");
+      }
+
+      if (!isnan(currentI)) {
+        sprintf(temp,"<span id='iout%d'>?</span>A", i + 1);
+        data.concat(temp);
+      }
+
       data.concat(F("</div><br /><hr>"));
 
       if (state.featurePurpose() == SWITCH) {
@@ -127,6 +129,11 @@ void handleAux() {
       } else
       if (state.featurePurpose() == DEW_HEATER) {
         data.concat(F("<div style='float: left; width: 8em; height: 2em; line-height: 2em'>"));
+        #if UNITS == METRIC
+          data.concat("DP " L_DP_MSG " (&deg;C)");
+        #else
+          data.concat("DP " L_DP_MSG " (&deg;F)");
+        #endif
         data.concat(F("</div><div style='float: left; width: 14em; height: 2em; line-height: 2em'>"));
         sprintf_P(temp, html_auxOnSwitch, i + 1, i + 1); data.concat(temp);
         sprintf_P(temp, html_auxOffSwitch, i + 1, i + 1); data.concat(temp);
@@ -136,11 +143,11 @@ void handleAux() {
         data.concat(temp);
         data.concat(F("</div>\n"));
 
-        data.concat(F("<div style='float: left; text-align: right; width: 8em; height: 2em; line-height: 2em'>"));
-        data.concat(L_ZERO " (100% " L_POWER ")");
+        data.concat(F("<div style='float: left; width: 8em; height: 2em; line-height: 2em'>"));
+        data.concat(L_DP_ZERO);
         data.concat(F("</div><div style='float: left; width: 14em; height: 2em; line-height: 2em'>"));
         data.concat(FPSTR(html_auxHeater));
-        sprintf(temp,"%d' onchange=\"sz('x%dv2',this.value)\">", (int)lround(celsiusToNativeRelative(state.featureValue2())*10.0F), i + 1);
+        sprintf(temp,"%d' onchange=\"sz('x%dv2',this.value)\">", (int)lround(celsiusToNativeRelative(state.featureValue2())*DEW_HEATER_CONTROL_SCALE), i + 1);
         data.concat(temp);
         data.concat(F("</div><div style='float: left; width: 4em; height: 2em; line-height: 2em'>"));
         dtostrf(celsiusToNativeRelative(state.featureValue2()), 3, 1, temp1);
@@ -148,11 +155,11 @@ void handleAux() {
         data.concat(temp);
         data.concat(F("</div>\n"));
         
-        data.concat(F("<div style='float: left; text-align: right; width: 8em; height: 2em; line-height: 2em'>"));
-        data.concat(L_SPAN " (0% " L_POWER ")");
+        data.concat(F("<div style='float: left; width: 8em; height: 2em; line-height: 2em'>"));
+        data.concat(L_DP_SPAN);
         data.concat(F("</div><div style='float: left; width: 14em; height: 2em; line-height: 2em'>"));
         data.concat(FPSTR(html_auxHeater));
-        sprintf(temp,"%d' onchange=\"sz('x%dv3',this.value)\">", (int)lround(celsiusToNativeRelative(state.featureValue3())*10.0), i + 1);
+        sprintf(temp,"%d' onchange=\"sz('x%dv3',this.value)\">", (int)lround(celsiusToNativeRelative(state.featureValue3())*DEW_HEATER_CONTROL_SCALE), i + 1);
         data.concat(temp);
         data.concat(F("</div><div style='float: left; width: 4em; height: 2em; line-height: 2em'>"));
         dtostrf(celsiusToNativeRelative(state.featureValue3()), 3, 1, temp1);
@@ -243,13 +250,6 @@ void auxAjaxGet() {
   www.sendContent("");
 }
 
-#if defined(V_SENSE_PINS) && defined(V_SENSE_FORMULA)
-  extern float featureVoltage[8];
-#endif
-#if defined(I_SENSE_PINS) && defined(I_SENSE_FORMULA)
-  extern float featureCurrent[8];
-#endif
-
 void auxAjax() {
   String data="";
   char temp[120]="";
@@ -264,33 +264,34 @@ void auxAjax() {
     for (int i = 0; i < 8; i++) {
       state.selectFeature(i);
 
-      #if defined(V_SENSE_PINS) && defined(V_SENSE_FORMULA)
-        if (!isnan(featureVoltage[i])) {
+      if (state.featurePurpose() && state.featurePurpose() != INTERVALOMETER && state.featurePurpose() != COVER_SWITCH) {
+
+        const float voltageV = state.featureVoltage();
+        const float currentI = state.featureCurrent();
+        if (!isnan(voltageV)) {
           if (state.featureValue1()) {
             sprintf(temp, "vout%d|", i + 1);
             data.concat(temp);
-            sprintF(temp, "%3.1f\n", featureVoltage[i]);
+            sprintF(temp, "%3.1f\n", voltageV);
             data.concat(temp);
           } else {
             sprintf(temp, "vout%d|0.0\n", i + 1);
             data.concat(temp);
           }
         }
-      #endif
 
-      #if defined(I_SENSE_PINS) && defined(I_SENSE_FORMULA)
-        if (!isnan(featureCurrent[i])) {
-          if (fabs(featureCurrent[i]) > 0.2499F) {
+        if (!isnan(currentI)) {
+          if (fabs(currentI) > 0.2499F) {
             sprintf(temp, "iout%d|", i + 1);
             data.concat(temp);
-            sprintF(temp, "%3.1f\n", featureCurrent[i]);
+            sprintF(temp, "%3.1f\n", currentI);
             data.concat(temp);
           } else {
             sprintf(temp, "iout%d|0.0\n", i + 1);
             data.concat(temp);
           }
         }
-      #endif
+      }
 
       if (state.featurePurpose() == SWITCH) {
         if (state.featureValue1() != 0) {
@@ -361,14 +362,14 @@ void processAuxGet() {
       sprintf(temp, "x%cv2", c);
       v = www.arg(temp);
       if (!v.equals(EmptyStr)) {
-        dtostrf(nativeToCelsiusRelative(v.toFloat()/10.0), 0, 1, temp1);
+        dtostrf(nativeToCelsiusRelative(v.toFloat()/DEW_HEATER_CONTROL_SCALE), 0, 1, temp1);
         sprintf(temp, ":SXX%c,Z%s#", c, temp1);
         onStep.commandBool(temp);
       }
       sprintf(temp, "x%cv3", c);
       v = www.arg(temp);
       if (!v.equals(EmptyStr)) {
-        dtostrf(nativeToCelsiusRelative(v.toFloat()/10.0), 0, 1, temp1);
+        dtostrf(nativeToCelsiusRelative(v.toFloat()/DEW_HEATER_CONTROL_SCALE), 0, 1, temp1);
         sprintf(temp, ":SXX%c,S%s#", c, temp1);
         onStep.commandBool(temp);
       }

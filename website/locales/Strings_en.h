@@ -28,8 +28,9 @@
 #define L_OFF "Off"
 #define L_START "Start"
 #define L_DELTA "Delta"
-#define L_ZERO "Zero"
-#define L_SPAN "Span"
+#define L_DP_MSG "Relative"
+#define L_DP_ZERO "Full power below"
+#define L_DP_SPAN "Heater off above"
 #define L_POWER "Pwr"
 #define L_GUIDE "Guide"
 #define L_CENTER "Center"
@@ -118,6 +119,7 @@
 #define L_DRIVER_FAULT "Fault"
 
 // misc. errors/workload
+#define L_HARDWARE "Hardware"
 #define L_INTERNAL_TEMP "Controller Temperature"
 #define L_LAST_GENERAL_ERROR "Last Error"
 #define L_WORKLOAD "Workload"
@@ -174,7 +176,7 @@
 #define L_HINT_CLOCK "Set Date/Time"
 #define L_HINT_CONTINUE_GOTO "Continue Goto (when paused at home)"
 #define L_HOME_PARK_TITLE "Homing and Parking"
-#define L_FIND_HOME "Find Home"
+#define L_RETURN_HOME "Return Home"
 #define L_RESET_HOME "Home (Reset)"
 #define L_UNPARK "Un-Park"
 #define L_PARK "Park"
@@ -276,6 +278,7 @@
 #define L_PEC_RECORDING "Recording"
 #define L_PEC_UNK "Unknown"
 #define L_PEC_EEWRITING "writing to EEPROM"
+#define L_PEC_STEPS_PER_WORM_ROTATION "Steps per worm rotation"
 
 // --------------------------- Settings --------------------------
 
@@ -352,32 +355,49 @@
 #define L_LOCATION_MESSAGE_UTC_OFFSET "Opposite of a time-zone value, this is for Standard Time (not Daylight Time.)"
 
 // advanced configuration
+
+// AxisToTile.cpp has a count and array matching these values
+#define L_AXPN_STEPS_PER_DEG "Steps/degree"      // "$1" (first axis parameter)
+#define L_AXPN_LIMIT_DEGS_MIN "Min limit, degs"  // "$2"
+#define L_AXPN_LIMIT_DEGS_MAX "Max limit, degs"  // "$3"
+#define L_AXPN_STEPS_PER_UM "Steps/um"           // "$4"
+#define L_AXPN_LIMIT_UM_MIN "Min limit, um"      // "$5"
+#define L_AXPN_LIMIT_UM_MAX "Max limit, um"      // "$6"
+#define L_AXPN_REVERSE "Reverse"                 // "$7" (first motor parameter)
+#define L_AXPN_MICROSTEPS "Microsteps"           // "$8"
+#define L_AXPN_MICROSTEPS_GOTO "Microsteps Goto" // "$9"
+#define L_AXPN_DECAY_MODE "Decay mode"           // "$10"
+#define L_AXPN_DECAY_MODE_GOTO "Decay mode Goto" // "$11"
+#define L_AXPN_CURRENT_HOLD "mA Hold"            // "$12"
+#define L_AXPN_CURRENT_RUN "mA Run"              // "$13"
+#define L_AXPN_CURRENT_GOTO "mA Goto"            // "$14"
+#define L_AXPN_INTERPOLATE "256x Interpolate"    // "$15"
+#define L_AXPN_PID_P "<big><code>P</code></big> Tracking" // "$16"
+#define L_AXPN_PID_I "<big><code>I</code></big> Tracking" // "$17"
+#define L_AXPN_PID_D "<big><code>D</code></big> Tracking" // "$18"
+#define L_AXPN_PID_SLEWING_P "<big><code>P</code></big> Slewing" // "$19"
+#define L_AXPN_PID_SLEWING_I "<big><code>I</code></big> Slewing" // "$20"
+#define L_AXPN_PID_SLEWING_D "<big><code>D</code></big> Slewing" // "$21"
+#define L_AXPN_RADS_PER_COUNT "Rads/count"       // "$22"
+#define L_AXPN_STEPS_TO_COUNTS "Steps/count ratio" // "$23"
+#define L_AXPN_MAX_ACCEL "Max accel, %/s/s"      // "$24"
+#define L_AXPN_MIN_PWR "Min power, %"            // "$25"
+#define L_AXPN_MAX_PWR "Max power, %"            // "$26"
+
+#define L_ADV_DECAY_SLOW "Slow"
+#define L_ADV_DECAY_FAST "Fast"
+#define L_ADV_DECAY_MIXED "Mixed"
+#define L_ADV_DECAY_SPREADCYCLE "SpreadCycle"
+#define L_ADV_DECAY_STEALTHCHOP "StealthChop"
+
+#define L_ADV_MOTOR "Motor"
 #define L_REVERT "Revert to Defaults"
 #define L_ADV_SET_TITLE "Advanced"
 #define L_ADV_SET_HEADER_MSG "unless noted otherwise changes below take effect after rebooting OnStep:"
 #define L_ADV_MOUNT_TYPE " select 1 GEM, 2 EQ Fork, or 3 Alt/Azm"
 #define L_ADV_BOOL "0 false or 1 true"
 
-#define L_ADV_SET_SPWR "Steps per worm rotation"
-#define L_ADV_SET_SPD "Steps per degree"
-#define L_ADV_SET_SPM "Steps per micron"
-#define L_ADV_SET_REV "Rev. direction"
-#define L_ADV_SET_MIN "Minimum position"
-#define L_ADV_SET_MAX "Maximum position"
-
-#define L_ADV_SET_SPECIAL "Step/Dir Driver:<br /><br />A value of -1 is equivalent to Config.h OFF. <i>Use caution with these!</i>"
-#define L_ADV_SET_IMMEDIATE "Servo Driver:<br /><br />Settings take effect immediately no reboot required. <i>Use caution with these!</i>"
-#define L_ADV_SET_TRAK_us "Microsteps"
-#define L_ADV_SET_GOTO_us "Microsteps Goto"
-#define L_ADV_SET_HOLD_ma "mA Hold Current"
-#define L_ADV_SET_TRAK_ma "mA Tracking Current"
-#define L_ADV_SET_SLEW_ma "mA Slewing Current"
-#define L_ADV_SET_P "Tracking Porportional"
-#define L_ADV_SET_I "Tracking Integral"
-#define L_ADV_SET_D "Tracking Derivative"
-#define L_ADV_SET_P_GOTO "Slewing Porportional"
-#define L_ADV_SET_I_GOTO "Slewing Integral"
-#define L_ADV_SET_D_GOTO "Slewing Derivative"
+#define L_ADV_SET_REV "Reverse direction"
 
 #define L_ADV_ENABLE "Enable Advanced Configuration"
 #define L_ADV_DISABLE "Disable Advanced Configuration (all defaults on reboot)"
@@ -386,7 +406,6 @@
 #define L_ADV_SET_FOOTER_MSG0 "Most axis setting changes require a reboot to take effect."
 #define L_ADV_SET_FOOTER_MSG1 "After pressing [Upload] take note of changes above since the upload may have been rejected due to an invalid parameter."
 #define L_ADV_SET_FOOTER_MSG2 "When you choose to [Revert] that group becomes unavailable for editing until you reboot OnStep."
-#define L_ADV_SET_FOOTER_MSG3 "If IRUN is set to other than the Config.h default, IHOLD is set to 50% (HALF.)"
 #define L_ADV_SET_FOOTER_MSG4 "Changing the ratio of Axis1 Steps per worm rotation and Steps per degree may corrupt the Library NV memory area, backup any catalogs first if needed."
 
 // reset control

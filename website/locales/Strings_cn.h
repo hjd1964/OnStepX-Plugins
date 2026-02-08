@@ -1,5 +1,5 @@
 // -----------------------------------------------------------------------------------
-// Locale Chinese ISO ISO639-1 language code "cn"
+// Locale Chinese, ISO ISO639-1 language code "cn"
 #pragma once
 
 // General
@@ -28,8 +28,9 @@
 #define L_OFF "关"
 #define L_START "开始"
 #define L_DELTA "对冲值"
-#define L_ZERO "零"
-#define L_SPAN "跨度"
+#define L_DP_MSG  "相对"
+#define L_DP_ZERO "低于则全功率"
+#define L_DP_SPAN "高于则关闭"
 #define L_POWER "功率"
 #define L_GUIDE "引导"
 #define L_CENTER "居中"
@@ -118,6 +119,7 @@
 #define L_DRIVER_FAULT "过错"
 
 // misc. errors/workload
+#define L_HARDWARE "硬件"
 #define L_INTERNAL_TEMP "内部控制器温度"
 #define L_LAST_GENERAL_ERROR "最后一个一般(背景)错误"
 #define L_WORKLOAD "工作量"
@@ -174,7 +176,7 @@
 #define L_HINT_CLOCK "设置日期/时间"
 #define L_HINT_CONTINUE_GOTO "继续转到（如果在原位）"
 #define L_HOME_PARK_TITLE "归巢和停车"
-#define L_FIND_HOME "搜索起始位置"
+#define L_RETURN_HOME "搜索起始位置"
 #define L_RESET_HOME "原始位置（重置）"
 #define L_UNPARK "取消停车"
 #define L_PARK "停车"
@@ -277,6 +279,7 @@
 #define L_PEC_RECORDING "绘图"
 #define L_PEC_UNK "未知"
 #define L_PEC_EEWRITING "写入EEPROM"
+#define L_PEC_STEPS_PER_WORM_ROTATION "蠕虫旋转的步骤数（0禁用）"
 
 // --------------------------- Settings --------------------------
 
@@ -353,32 +356,47 @@
 #define L_LOCATION_MESSAGE_UTC_OFFSET "标准时间的相对时区值（无冬季时间！）"
 
 // advanced configuration
+#define L_AXPN_STEPS_PER_DEG "步/度"
+#define L_AXPN_LIMIT_DEGS_MIN "最小限制度数"
+#define L_AXPN_LIMIT_DEGS_MAX "最大限制度数"
+#define L_AXPN_STEPS_PER_UM "步/微米"
+#define L_AXPN_LIMIT_UM_MIN "最小限度微米"
+#define L_AXPN_LIMIT_UM_MAX "最大限度微米"
+#define L_AXPN_REVERSE "反向"
+#define L_AXPN_MICROSTEPS "微步"
+#define L_AXPN_MICROSTEPS_GOTO "微步跳至"
+#define L_AXPN_DECAY_MODE "衰减模式"
+#define L_AXPN_DECAY_MODE_GOTO "衰减模式跳至"
+#define L_AXPN_CURRENT_HOLD "mA 保持"
+#define L_AXPN_CURRENT_RUN "mA 运行"
+#define L_AXPN_CURRENT_GOTO "mA 跳至"
+#define L_AXPN_INTERPOLATE "256倍插值"
+#define L_AXPN_PID_P "P 跟踪"
+#define L_AXPN_PID_I "I 跟踪"
+#define L_AXPN_PID_D "D 跟踪"
+#define L_AXPN_PID_SLEWING_P "P 摆动"
+#define L_AXPN_PID_SLEWING_I "I 摆动"
+#define L_AXPN_PID_SLEWING_D "D 摆动"
+#define L_AXPN_RADS_PER_COUNT "弧度/计数"
+#define L_AXPN_STEPS_TO_COUNTS "步数/计数比"
+#define L_AXPN_MAX_ACCEL "最大加速度，%/秒/秒"
+#define L_AXPN_MIN_PWR "最小功率，%"
+#define L_AXPN_MAX_PWR "最大功率，%"
+
+#define L_ADV_DECAY_SLOW "慢速"
+#define L_ADV_DECAY_FAST "快速"
+#define L_ADV_DECAY_MIXED "混合"
+#define L_ADV_DECAY_SPREADCYCLE "SpreadCycle"
+#define L_ADV_DECAY_STEALTHCHOP "StealthChop"
+
+#define L_ADV_MOTOR "发动机"
 #define L_REVERT "还原为默认值"
 #define L_ADV_SET_TITLE "高级"
 #define L_ADV_SET_HEADER_MSG "除非另有说明，否则以下更改将在重新启动 OnStep 后生效:"
 #define L_ADV_MOUNT_TYPE " 选择 1 GEM, 2 EQ Fork, 3 Alt/Azm"
 #define L_ADV_BOOL "0 假或 1 真"
 
-#define L_ADV_SET_SPWR "蠕虫旋转的步骤数（0禁用）"
-#define L_ADV_SET_SPD "每度步数"
-#define L_ADV_SET_SPM "每微米步数"
 #define L_ADV_SET_REV "反向，0假或1真"
-#define L_ADV_SET_MIN "最低位置"
-#define L_ADV_SET_MAX "最大位置"
-
-#define L_ADV_SET_SPECIAL "步进/方向驱动器：<br /><br />值为-1相当于Config.h OFF。 <i>谨慎使用这些！</i>"
-#define L_ADV_SET_IMMEDIATE "伺服驱动器：<br /><br />设置立即生效，无需重启。 <i>谨慎使用这些！</i>"
-#define L_ADV_SET_TRAK_us "微步"
-#define L_ADV_SET_GOTO_us "微步转到"
-#define L_ADV_SET_HOLD_ma "mA 保持电流"
-#define L_ADV_SET_TRAK_ma "mA 跟踪电流"
-#define L_ADV_SET_SLEW_ma "mA 转换电流"
-#define L_ADV_SET_P "追踪 成比例的"
-#define L_ADV_SET_I "追踪 不可缺少的"
-#define L_ADV_SET_D "追踪 衍生物"
-#define L_ADV_SET_P_GOTO "回转 成比例的"
-#define L_ADV_SET_I_GOTO "回转 不可缺少的"
-#define L_ADV_SET_D_GOTO "回转 衍生物"
 
 #define L_ADV_ENABLE "启用高级配置"
 #define L_ADV_DISABLE "禁用高级配置（重新启动时所有默认设置）。"
@@ -387,7 +405,6 @@
 #define L_ADV_SET_FOOTER_MSG0 "大多数轴设置更改需要重新启动才能生效。"
 #define L_ADV_SET_FOOTER_MSG1 "在按下[Upload]后，请注意上述更改，因为上载可能由于参数无效而被拒绝。"
 #define L_ADV_SET_FOOTER_MSG2 "当您选择[还原]时，该组将不可编辑，直到您重新启动OnStep。"
-#define L_ADV_SET_FOOTER_MSG3 "如果 IRUN 设置为非 Config.h 默认值，则 IHOLD 设置为 50% (HALF)。"
 #define L_ADV_SET_FOOTER_MSG4 "更改每蠕虫蠕虫的Axis1步进数和每度步进数的比率可能会损坏Library NV存储区，如果需要，请首先备份所有目录。"
 
 // reset control

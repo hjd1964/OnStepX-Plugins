@@ -76,18 +76,13 @@ void handleRoot()
   data.concat(F("<br class=\"clear\" />\n"));
 
   #if DISPLAY_SERVO_MONITOR == ON
+    data.concat(F("<hr>"));
     servoTile(data);
-  #endif
-
-  #if DISPLAY_SERVO_CALIBRATION == ON
-    servoCalibrateTile(data);
-  #endif
-
-  #if DISPLAY_SERVO_MONITOR == ON || DISPLAY_SERVO_CALIBRATION == ON
     data.concat(F("<br class=\"clear\" />\n"));
   #endif
 
   #if DRIVE_CONFIGURATION == ON
+    data.concat(F("<hr>"));
     if (numShown == 0) data.concat(F("<br />" L_ADV_SET_NO_EDIT "<br />"));
 
     sprintf_P(temp, html_form_begin, "index.htm");
@@ -103,7 +98,7 @@ void handleRoot()
       data.concat(FPSTR(html_configAxesNotes));
       if (status.getVersionMajor() < 10) data.concat(FPSTR(html_configAxesNotesOnStep));
     } else
-      data.concat(F("<br />"));
+      data.concat(F("<br /><hr>"));
     www.sendContentAndClear(data);
   #endif
 
@@ -145,9 +140,6 @@ void indexAjax() {
     #if DISPLAY_SERVO_MONITOR == ON
       servoTileAjax(data);
     #endif
-    #if DISPLAY_SERVO_CALIBRATION == ON
-      servoCalibrateTileAjax(data);
-    #endif
   }
 
   www.sendContentAndClear(data);
@@ -175,9 +167,6 @@ void processIndexGet()
   axisTileGet();
   #if DISPLAY_SERVO_MONITOR == ON
     servoTileGet();
-  #endif
-  #if DISPLAY_SERVO_CALIBRATION == ON
-    servoCalibrateTileGet();
   #endif
 
   state.lastControllerPageLoadTime = millis();

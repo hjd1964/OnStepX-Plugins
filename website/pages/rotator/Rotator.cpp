@@ -6,12 +6,14 @@
 #include "../KeyValue.h"
 #include "../Pages.common.h"
 
+extern void handleNotFound();
 void processRotatorGet();
 
 void handleRotator() {
   char temp[240] = "";
 
   state.updateRotator(true);
+  if (status.rotatorFound != SD_TRUE) { handleNotFound(); return; }
 
   SERIAL_ONSTEP.setTimeout(webTimeout);
   onStep.serialRecvFlush();
@@ -38,6 +40,7 @@ void handleRotator() {
   // show this page
   data.concat(FPSTR(html_body_begin));
   www.sendContentAndClear(data);
+  pageHeader(PAGE_ROTATOR);
   data.concat(FPSTR(html_onstep_page_begin));
 
   // OnStep wasn't found, show warning and info.
