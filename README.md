@@ -28,6 +28,23 @@ The guide rate rheostat allows using an knob, on a basic hand controller for exa
 
 Its settings are in /guideRateRheostat/Config.h and you need to set the pin to be used for analog input, the values to describe the rheostat voltage divider, etc.
 
+## Serial Bluetooth Config
+
+For external HC-05/06 modules. This plugin sends AT commands to configure the module one time at startup. You may need to hold the button on the BT module (if present) while powering on OnStep to enter AT command mode.
+
+This plugin requires that a serial port for Bluetooth is activated in OnStepX's `Config.h` file, along with its corresponding baud rate.
+
+Example for MaxPCB4 (which uses `Serial1`):
+- `#define SERIAL_BLUETOOTH Serial1`
+- `#define SERIAL_C_BAUD 9600`
+
+You must copy the /serialBluetoothConfig directory into the OnStepX/src/plugins directory and add an entry for it in Plugins.config.h similar to the following:
+
+- `#define PLUGIN1 serialBluetoothConfigPlugin`
+- `#include "serialBluetoothConfig/SerialBluetoothConfig.h"`
+
+Configuration settings are in /serialBluetoothConfig/Config.h
+
 ## ElegantOTA
 
 First, you must add [ElegantOTA](https://docs.elegantota.pro/) to your libraries. Follow the instructions [here](https://docs.elegantota.pro/getting-started/installation).
@@ -124,3 +141,4 @@ Additional serial commands are provided to control the USB ports:
 :GUY0# - Get defined USB ports in format 11110000 where 1 indicates a defined port
 :SUX[n],V[1|0]# - Set USB port n to state ON (V1) or OFF (V0)
 :SUX0,V[1|0]# - Set all defined USB ports to state ON (V1) or OFF (V0)
+```
