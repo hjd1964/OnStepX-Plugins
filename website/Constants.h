@@ -2,7 +2,7 @@
 // Constants
 #pragma once
 
-#define WEBSITE_PLUGIN_VERSION      "2.10a"
+#define WEBSITE_PLUGIN_VERSION      "2.10b"
 
 #define METRIC                       ON
 #define IMPERIAL                     -200
