@@ -3,7 +3,9 @@
 
 ## Bluetooth BLE
 
-Exposes the OnStepX LX200 command interface over BLE using the **Nordic UART Service (NUS)**, so iOS and Android apps can connect wirelessly without a WiFi module.
+Exposes the OnStepX LX200 command interface over BLE using the **Nordic UART Service (NUS)**, so iOS and Android apps that support NUS can connect wirelessly without a WiFi module.
+
+> **Note:** This plugin uses BLE (Bluetooth Low Energy / Bluetooth 4.0+) and is **not compatible with the existing OnStep Android app** (OnStep Controller2). That app uses classic Bluetooth SPP, which is a completely different protocol. To use OnStepX with the existing Android app do not use thie plugin.
 
 ### Requirements
 
