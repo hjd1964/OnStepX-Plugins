@@ -1,5 +1,6 @@
 # OnStepX-Plugins
 
+
 ## Website
 
 The SWS Website for ESP32's and WiFi only, ported to OnStepX.
@@ -44,21 +45,6 @@ You must copy the /serialBluetoothConfig directory into the OnStepX/src/plugins 
 - `#include "serialBluetoothConfig/SerialBluetoothConfig.h"`
 
 Configuration settings are in /serialBluetoothConfig/Config.h
-
-## Axis1 Limit Disable
-
-This plugin provides a serial command to disable the under-pole axis limits, which can be useful when performing polar alignment with software like ASIAIR or INDI.
-
-You must copy the /Axis1LimitDisable directory into the OnStepX/src/plugins directory and add an entry for it in Plugins.config.h similar to the following:
-
-- `#define PLUGIN1 axis1LimitDisablePlugin`
-- `#define PLUGIN1_COMMAND_PROCESSING ON`
-- `#include "Axis1LimitDisable/Axis1LimitDisable.h"`
-
-### Serial Commands
-
-- `:XADD#` - Disables the axis 1 limits by setting them to -360 and 360 degrees.
-- `:XADE#` - Enables the axis 1 limits to their default values from OnStepX's configuration.
 
 ## ElegantOTA
 
