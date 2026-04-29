@@ -8,9 +8,9 @@ Exposes the OnStepX LX200 command interface over BLE using the **Nordic UART Ser
 ### Requirements
 
 - **Platform:** ESP32 only
-- **Library:** [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino)
-  - Arduino IDE: *Sketch → Include Library → Manage Libraries* → search **NimBLE-Arduino**
-  - PlatformIO: add `h2zero/NimBLE-Arduino` to `lib_deps`
+- **Library:** [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) — use version **1.4.2** for ESP32 Arduino core 2.x. NimBLE-Arduino 2.x requires core 3.x and will not compile against 2.0.17.
+  - Arduino IDE: *Sketch → Include Library → Manage Libraries* → search **NimBLE-Arduino** → select version **1.4.2** from the version dropdown → Install
+  - PlatformIO: add `h2zero/NimBLE-Arduino@^1.4.2` to `lib_deps`
 - **Do not** set `SERIAL_BLUETOOTH` in OnStepX's `Config.h` while using this plugin. Classic Bluetooth and BLE share the same radio hardware on the ESP32 and the two stacks will conflict, causing crashes or failed initialization at startup. Ensure `SERIAL_BLUETOOTH` is set to `OFF` in `Config.h`.
 
 ### Installation
