@@ -160,6 +160,8 @@ void BluetoothBle::loop() {
 // ── processCommand ────────────────────────────────────────────────────────────
 
 void BluetoothBle::processCommand(const char *cmd) {
+  VF("MSG: BluetoothBle, cmd: "); VLF(cmd);
+
   SERIAL_LOCAL.transmit(cmd);
 
   // Poll in 5 ms increments up to BLE_RESPONSE_TIMEOUT_MS for OnStepX to
@@ -173,7 +175,10 @@ void BluetoothBle::processCommand(const char *cmd) {
   }
 
   char *resp = SERIAL_LOCAL.receive();
-  if (!resp || resp[0] == '\0') return;
+  if (!resp || resp[0] == '\0') {
+    VLF("MSG: BluetoothBle, no response");
+    return;
+  }
 
   // The iOS parser requires a '#' terminator.  Append one if it's missing.
   size_t rlen = strlen(resp);
@@ -184,6 +189,8 @@ void BluetoothBle::processCommand(const char *cmd) {
   } else {
     snprintf(buf, sizeof(buf), "%s#", resp);
   }
+
+  VF("MSG: BluetoothBle, resp: "); VLF(buf);
 
   xSemaphoreTake(mutex, portMAX_DELAY);
   bool conn = clientConnected;
