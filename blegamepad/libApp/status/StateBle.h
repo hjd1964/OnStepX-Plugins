@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../../../Common.h"
-#include "Status.h"
+#include "statusBle.h"
 
 #define leftTri  "&#x25c4;"
 #define rightTri "&#x25ba;"
@@ -33,26 +33,20 @@ typedef struct DriverStatusEx {
 #define STATE_POLLING_RATE_MS         500     // time between updates for most OnStep state information
 #endif
 
-class State {
+class StateBle {
   public:
     void init();
     void poll();
     void pollSlow();
     void pollFast();
-
-    void updateController(bool now = false);
-    void updateMount(bool now = false);
-    void updateRotator(bool now = false);
-    void updateFocuser(bool now = false);
-
-    bool updateAuxiliary(bool all = false, bool now = false);
+    
     inline void selectFeature(int f) { featureSelected = f; }
-    inline char* featureName() { return status.feature[featureSelected].name; }
-    inline int featurePurpose() { return status.feature[featureSelected].purpose; }
-    inline int featureValue1() { return status.feature[featureSelected].value1; }
-    inline float featureValue2() { return status.feature[featureSelected].value2; }
-    inline float featureValue3() { return status.feature[featureSelected].value3; }
-    inline float featureValue4() { return status.feature[featureSelected].value4; }
+    inline char* featureName() { return statusBle.feature[featureSelected].name; }
+    inline int featurePurpose() { return statusBle.feature[featureSelected].purpose; }
+    inline int featureValue1() { return statusBle.feature[featureSelected].value1; }
+    inline float featureValue2() { return statusBle.feature[featureSelected].value2; }
+    inline float featureValue3() { return statusBle.feature[featureSelected].value3; }
+    inline float featureValue4() { return statusBle.feature[featureSelected].value4; }
 
     void updateEncoders(bool now = false);
 
@@ -133,8 +127,6 @@ class State {
     int rotatorGotoRate = 3;
     char rotateSlewSpeedStr[20] = "?";
 
-   // DynamicJsonDocument *doc;
-
   private:
     void axisStatusUpdate();
 
@@ -153,7 +145,4 @@ class State {
     unsigned long lastPoll = 0;
 };
 
-void formatDegreesStr(char *s);
-void formatHoursStr(char *s);
-
-extern State state;
+extern StateBle stateBle;

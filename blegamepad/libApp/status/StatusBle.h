@@ -35,7 +35,7 @@ typedef struct Features {
 #define PierSideFlipEW2  21
 #define PierSideFlipEW3  22
 
-class Status {
+class StatusBle {
   public:
     bool update();
 
@@ -126,4 +126,4 @@ class Status {
     char ver_patch = 0;
 };
 
-extern Status status;
+extern StatusBle statusBle;

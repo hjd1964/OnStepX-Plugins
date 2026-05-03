@@ -28,6 +28,21 @@ The guide rate rheostat allows using an knob, on a basic hand controller for exa
 
 Its settings are in /guideRateRheostat/Config.h and you need to set the pin to be used for analog input, the values to describe the rheostat voltage divider, etc.
 
+## BLE Gamepad
+
+BLE gamepad controller support for ESP32 based OnStepX builds. This plugin connects to supported BLE HID gamepads and uses the directional joystick as telescope slew controls.
+
+You must copy the /blegamepad directory into the OnStepX/src/plugins directory and add an entry for it in Plugins.config.h similar to the following:
+
+```
+#define PLUGIN1                       blegamepad
+#include "blegamepad/BleGamepad.h"
+```
+
+This plugin requires the NimBLE-Arduino library and ESP32 BLE support.
+
+Configuration settings are in /blegamepad/BleConfig.h. Set `BLE_GP_ADDR` to your controller MAC address before enabling the plugin.
+
 ## ElegantOTA
 
 First, you must add [ElegantOTA](https://docs.elegantota.pro/) to your libraries. Follow the instructions [here](https://docs.elegantota.pro/getting-started/installation).

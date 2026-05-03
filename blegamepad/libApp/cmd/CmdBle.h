@@ -5,12 +5,10 @@
 #include "../../Common.h"
 
 #define SERIAL_ONSTEP SERIAL_LOCAL
-// The settings below are for initialization only, afterward they are stored and recalled from EEPROM and must
-// be changed in the web interface OR with a reset (for initialization again) as described in the Config.h comments
-#define TIMEOUT_WEB                  200
-#define TIMEOUT_CMD                  200
 
-class OnStepCmd {
+#define TIMEOUT                  200
+
+class OnStepCmdBle {
   public:
     void serialRecvFlush();
 
@@ -38,10 +36,7 @@ class OnStepCmd {
   private:
 };
 
-// timeout period for the web
-extern int webTimeout;
+// timeout 
+extern int timeout;
 
-// timeout period for the command channel(s)
-extern int cmdTimeout;
-
-extern OnStepCmd onStep;
+extern OnStepCmdBle onStepBle;

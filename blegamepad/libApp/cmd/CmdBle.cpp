@@ -1,18 +1,17 @@
 // -----------------------------------------------------------------------------------
 // Help with commands, etc.
 
-#include "Cmd.h"
+#include "CmdBle.h"
 #include "../../../../libApp/commands/ProcessCmds.h"
 
-int webTimeout = TIMEOUT_WEB;
-int cmdTimeout = TIMEOUT_CMD;
+int timeout = TIMEOUT;
 
-void OnStepCmd::serialRecvFlush() {
+void OnStepCmdBle::serialRecvFlush() {
   while (SERIAL_ONSTEP.available() > 0) SERIAL_ONSTEP.read();
 }
 
 // smart LX200 aware command and response (up to 80 chars) over serial
-bool OnStepCmd::processCommand(const char* cmd, char* response, long timeOutMs) {
+bool OnStepCmdBle::processCommand(const char* cmd, char* response, long timeOutMs) {
   SERIAL_ONSTEP.setTimeout(timeOutMs);
 
   // clear the read/write buffers
@@ -132,41 +131,41 @@ bool OnStepCmd::processCommand(const char* cmd, char* response, long timeOutMs) 
   }
 }
 
-bool OnStepCmd::command(const char* command, char* response) {
-  bool success = processCommand(command, response, webTimeout);
+bool OnStepCmdBle::command(const char* command, char* response) {
+  bool success = processCommand(command, response, timeout);
   int l = strlen(response) - 1;
   if (l >= 0 && response[l] == '#') response[l] = 0;
   return success;
 }
 
-bool OnStepCmd::commandBlind(const char* command) {
+bool OnStepCmdBle::commandBlind(const char* command) {
   char response[80] = "";
-  return processCommand(command, response, webTimeout);
+  return processCommand(command, response, timeout);
 }
 
-bool OnStepCmd::commandEcho(const char* command) {
+bool OnStepCmdBle::commandEcho(const char* command) {
   char response[80] = "";
   char c[40] = "";
   sprintf(c, ":EC%s#", command);
-  return processCommand(c, response, webTimeout);
+  return processCommand(c, response, timeout);
 }
 
-bool OnStepCmd::commandBool(const char* command) {
+bool OnStepCmdBle::commandBool(const char* command) {
   char response[80] = "";
-  bool success = processCommand(command, response, webTimeout);
+  bool success = processCommand(command, response, timeout);
   int l = strlen(response) - 1; if (l >= 0 && response[l] == '#') response[l] = 0;
   if (!success) return false;
   if (response[1] != 0) return false;
   if (response[0] == '0') return false; else return true;
 }
 
-char* OnStepCmd::commandString(const char* command) {
+char* OnStepCmdBle::commandString(const char* command) {
   static char response[80] = "";
-  bool success = processCommand(command, response, webTimeout);
+  bool success = processCommand(command, response, timeout);
   int l = strlen(response) - 1;
   if (l >= 0 && response[l] == '#') response[l] = 0;
   if (!success) strcpy(response,"?");
   return response;
 }
 
-OnStepCmd onStep;
+OnStepCmdBle onStepBle;

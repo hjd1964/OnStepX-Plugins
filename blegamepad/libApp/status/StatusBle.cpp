@@ -5,11 +5,11 @@
 
 #include "../../../../lib/debug/Debug.h"
 #include "../../Config.h"
-#include "../cmd/Cmd.h"
+#include "../cmd/CmdBle.h"
 
-#include "Status.h"
+#include "StatusBle.h"
 
-bool Status::update()
+bool StatusBle::update()
 {
   char result[80] = "";
   if (!onStepFound) {
@@ -18,11 +18,11 @@ bool Status::update()
     rotatorFound = SD_UNKNOWN;
     auxiliaryFound = SD_UNKNOWN;
 
-    if (!onStep.command(":GVP#", result) || result[0] == 0 || !strstr(result, "On-Step")) {
+    if (!onStepBle.command(":GVP#", result) || result[0] == 0 || !strstr(result, "On-Step")) {
       onStepFound = false;
       return false;
     } delay(0);
-    if (!onStep.command(":GVN#", result) || result[0] == 0 ) {
+    if (!onStepBle.command(":GVN#", result) || result[0] == 0 ) {
       onStepFound = false;
       return false;
     } delay(0);
@@ -49,7 +49,7 @@ bool Status::update()
       strcpy(configName, "");
     } else {
       onStepFound = true;
-      if (onStep.command(":GVC#", result)) {
+      if (onStepBle.command(":GVC#", result)) {
         strncpy(configName, result, 40);
       }
     }
@@ -62,7 +62,7 @@ bool Status::update()
     auxiliaryScan();
 
     if (mountFound == SD_TRUE) {
-      if (onStep.command(":GU#", result)) {
+      if (onStepBle.command(":GU#", result)) {
         delay(0);
         tracking = false;
         inGoto = false;
@@ -118,13 +118,13 @@ bool Status::update()
         lastError = (Errors)(e);
 
         // get meridian status
-        if (onStep.command(":GX94#", result) && result[0] != 0) {
+        if (onStepBle.command(":GX94#", result) && result[0] != 0) {
           delay(0);
           meridianFlips = !strstr(result, "N");
           pierSide = strtol(&result[0], NULL, 10);
 
           // align status
-          if (onStep.command(":A?#", result) && strlen(result) == 3) {
+          if (onStepBle.command(":A?#", result) && strlen(result) == 3) {
             if (result[0] >= '0' && result[0] <= '9') alignMaxStars = result[0] - '0';
             if (result[1] >= '0' && result[1] <= '9') alignThisStar = result[1] - '0';
             if (result[2] >= '0' && result[2] <= '9') alignLastStar = result[2] - '0';
@@ -140,7 +140,7 @@ bool Status::update()
         } else onStepFound = false;
       } else onStepFound = false;
     } else {
-      if (!onStep.command(":GVP#", result) || result[0] == 0 || !strstr(result, "On-Step")) onStepFound = false;
+      if (!onStepBle.command(":GVP#", result) || result[0] == 0 || !strstr(result, "On-Step")) onStepFound = false;
       delay(0);
     }
   }
@@ -148,56 +148,56 @@ bool Status::update()
   return onStepFound;
 }
 
-void Status::mountScan() {
+void StatusBle::mountScan() {
   if (mountFound == SD_UNKNOWN) {
     char result[80] = "";
-    if (!onStep.command(":GU#", result) || result[0] == 0) mountFound = SD_FALSE; else mountFound = SD_TRUE; delay(0);
+    if (!onStepBle.command(":GU#", result) || result[0] == 0) mountFound = SD_FALSE; else mountFound = SD_TRUE; delay(0);
   }
 }
 
-void Status::focuserScan() {
+void StatusBle::focuserScan() {
   if (focuserFound == SD_UNKNOWN) {
     focuserFound = SD_FALSE;
     focuserCount = 0;
     for (int i = 0; i < 6; i++) focuserPresent[i] = false;
     if (getVersionMajor() >= 10) {
-      if (onStep.commandBool(":F1a#")) { focuserPresent[0] = true; focuserCount++; } delay(0);
-      if (onStep.commandBool(":F2a#")) { focuserPresent[1] = true; focuserCount++; } delay(0);
-      if (onStep.commandBool(":F3a#")) { focuserPresent[2] = true; focuserCount++; } delay(0);
-      if (onStep.commandBool(":F4a#")) { focuserPresent[3] = true; focuserCount++; } delay(0);
-      if (onStep.commandBool(":F5a#")) { focuserPresent[4] = true; focuserCount++; } delay(0);
-      if (onStep.commandBool(":F6a#")) { focuserPresent[5] = true; focuserCount++; } delay(0);
+      if (onStepBle.commandBool(":F1a#")) { focuserPresent[0] = true; focuserCount++; } delay(0);
+      if (onStepBle.commandBool(":F2a#")) { focuserPresent[1] = true; focuserCount++; } delay(0);
+      if (onStepBle.commandBool(":F3a#")) { focuserPresent[2] = true; focuserCount++; } delay(0);
+      if (onStepBle.commandBool(":F4a#")) { focuserPresent[3] = true; focuserCount++; } delay(0);
+      if (onStepBle.commandBool(":F5a#")) { focuserPresent[4] = true; focuserCount++; } delay(0);
+      if (onStepBle.commandBool(":F6a#")) { focuserPresent[5] = true; focuserCount++; } delay(0);
     } else {
-      if (onStep.commandBool(":FA#")) { focuserPresent[0] = true; focuserCount++; } delay(0);
-      if (onStep.commandBool(":fA#")) { focuserPresent[1] = true; focuserCount++; } delay(0);
+      if (onStepBle.commandBool(":FA#")) { focuserPresent[0] = true; focuserCount++; } delay(0);
+      if (onStepBle.commandBool(":fA#")) { focuserPresent[1] = true; focuserCount++; } delay(0);
     }
     if (focuserCount > 0) focuserFound = SD_TRUE;
   }
 }
 
-void Status::rotatorScan() {
+void StatusBle::rotatorScan() {
   if (rotatorFound == SD_UNKNOWN) {
     char temp[80];
     rotatorFound = SD_FALSE;
     derotatorFound = false;
-    if (onStep.command(":GX98#", temp)) {
+    if (onStepBle.command(":GX98#", temp)) {
       if (temp[0] == 'R') { rotatorFound = SD_TRUE; derotatorFound = false; }
       if (temp[0] == 'D') { rotatorFound = SD_TRUE; derotatorFound = true; }
     } delay(0);
   }
 }
 
-bool Status::auxiliaryScan() {
+bool StatusBle::auxiliaryScan() {
   bool valid;
   char cmd[40], out[40], present[40];
 
   if (auxiliaryFound == SD_UNKNOWN) {
     // check which feature #'s are present
-    if (!onStep.command(":GXY0#", present) || present[0] == 0 || strlen(present) != 8) valid = false; else valid = true; delay(0);
+    if (!onStepBle.command(":GXY0#", present) || present[0] == 0 || strlen(present) != 8) valid = false; else valid = true; delay(0);
 
     // try to get the AF presense twice before giving up
     if (!valid) {
-      if (!onStep.command(":GXY0#", present) || present[0] == 0 || strlen(present) != 8) valid = false; else valid = true; delay(0);
+      if (!onStepBle.command(":GXY0#", present) || present[0] == 0 || strlen(present) != 8) valid = false; else valid = true; delay(0);
       if (!valid) { for (uint8_t j = 0; j < 8; j++) feature[j].purpose = 0; auxiliaryFound = SD_FALSE; return false; }
     }
 
@@ -208,7 +208,7 @@ bool Status::auxiliaryScan() {
       if (present[i] == '0') continue;
 
       sprintf(cmd, ":GXY%d#", i+1);
-      if (!onStep.command(cmd, out) || out[0] == 0) valid = false; delay(0);
+      if (!onStepBle.command(cmd, out) || out[0] == 0) valid = false; delay(0);
       if (!valid) { for (uint8_t j = 0; j < 8; j++) feature[j].purpose = 0; auxiliaryFound = SD_FALSE; return false; }
 
       if (strlen(out) > 1) {
@@ -240,4 +240,4 @@ bool Status::auxiliaryScan() {
   return true;
 }
 
-Status status;
+StatusBle statusBle;
