@@ -32,6 +32,8 @@ Its settings are in /guideRateRheostat/Config.h and you need to set the pin to b
 
 BLE gamepad controller support for ESP32 based OnStepX builds. This plugin connects to supported BLE HID gamepads and uses the directional joystick as telescope slew controls.
 
+This plugin is based on the SmartWebServer [bleGamepad module](https://github.com/hjd1964/SmartWebServer/tree/main/src/libApp/bleGamepad), adapted for OnStepX plugins and NimBLE.
+
 You must copy the /blegamepad directory into the OnStepX/src/plugins directory and add an entry for it in Plugins.config.h similar to the following:
 
 ```
