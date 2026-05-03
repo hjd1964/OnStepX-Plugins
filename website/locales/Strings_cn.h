@@ -292,6 +292,9 @@
 #define L_PARK "停车"
 #define L_SET_PARK "设置停车位置"
 #define L_SET_PARK_CURRENT_COORDS "在当前坐标处设置停放位置"
+#define L_COORD_ORIGIN_TITLE "坐标原点"
+#define L_COORD_ORIGIN "设置坐标原点"
+#define L_COORD_ORIGIN_MSG "在归位且关闭跟踪时，用于建立物理方向与坐标原点的关系，以用于同步限制。"
 
 #define L_TRK_FASTER "跟进"
 #define L_TRK_SLOWER "更快"
@@ -432,9 +435,13 @@
 #define L_NETWORK_CHA "频道"
 #define L_NETWORK_EN_AP_MODE "开启接入点模式"
 
+#define L_NETWORK_OTA_TITLE "OTA SWS固件更新"
+#define L_NETWORK_EN_OTA    "启用OTA模式"
+#define L_REBOOT_OTA        "重启进入OTA模式"
+
 #define L_NETWORK_CONFIG_SECURITY "网络配置安全"
 
-#define L_NETWORK_AP "访问点模式"
+#define L_NETWORK_AP "访问点模式（当工作站模式连接失败时自动启用）"
 
 #define L_NETWORK_RESTART_MSG "您必须手动<u>重新启动</ u>才能使更改生效."
 

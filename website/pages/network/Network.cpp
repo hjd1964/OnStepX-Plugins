@@ -1,17 +1,14 @@
 // -----------------------------------------------------------------------------------
 // Setup Network
 #include "Network.h"
+#include <Arduino.h>
 
+#include "../../../../lib/nv/Nv.h"
 #include "../../../../lib/ethernet/EthernetManager.h"
 #include "../../../../lib/wifi/WifiManager.h"
+
 #include "../Page.h"
 #include "../Pages.common.h"
-
-#ifdef NVS
-  extern NVS nv;
-#else
-  #include "../../../../lib/nv/Nv.h"
-#endif
 
 extern int webTimeout;
 extern int cmdTimeout;
@@ -20,9 +17,14 @@ void processNetworkGet();
 
 bool restartRequired = false;
 bool loginRequired = true;
-byte temp_ip[4] = {0,0,0,0};
-byte temp_sn[4] = {0,0,0,0};
-byte temp_gw[4] = {0,0,0,0};
+
+#ifdef OTA_PRESENT
+  #include "../../../../lib/tasks/OnTask.h"
+  typedef struct OtaSettings {
+    char password[64];
+    bool enabled;
+  } OtaSettings;
+#endif
 
 void handleNetwork() {
   char temp[420]  = "";
@@ -42,6 +44,7 @@ void handleNetwork() {
   data.concat(FPSTR(html_main_css_begin));
   www.sendContentAndClear(data);
   data.concat(FPSTR(html_main_css_core));
+  data.concat(FPSTR(html_main_css_control));
   www.sendContentAndClear(data);
   data.concat(FPSTR(html_main_css_end));
   data.concat(FPSTR(html_head_end));
@@ -63,7 +66,7 @@ void handleNetwork() {
   }
 
   // page contents
-  data.concat("<div>");
+  data.concat(F("<div>"));
 
   if (restartRequired) {
     restartRequired = false;
@@ -73,68 +76,105 @@ void handleNetwork() {
     restartRequired = false;
     data.concat(FPSTR(html_login));
   } else {
-    #if defined(NV_TIMEOUT_CMD) && defined(NV_TIMEOUT_WEB)
-      sprintf_P(temp, htmL_NETWORKSerial, cmdTimeout, webTimeout); data.concat(temp);
-    #endif
 
     #if OPERATIONAL_MODE == WIFI
-      sprintf_P(temp, htmL_NETWORKSSID1, wifiManager.sta->ssid, ""); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), html_tile_text_beg, "33em", "19em", L_NETWORK_STA_TITLE); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NETWORKSSID1, wifiManager.sta->ssid); data.concat(temp);
 
       uint8_t macsta[6] = {0,0,0,0,0,0};
       WiFi.macAddress(macsta);
       temp1[0] = 0;
       for (int i = 0; i < 6; i++) {
         char temp2[200];
-        sprintf(temp2, "%s%02x:", temp1, macsta[i]);
-        strcpy(temp1, temp2);
+        snprintf(temp2, sizeof(temp2), "%s%02x:", temp1, macsta[i]);
+        sstrcpy(temp1, temp2);
       }
       temp1[strlen(temp1) - 1] = 0;
 
-      sprintf_P(temp,htmL_NET_MAC,"sta", temp1); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NET_MAC,"sta", temp1); data.concat(temp);
       www.sendContentAndClear(data);
-      sprintf_P(temp,htmL_NET_IP, "sta", (int)wifiManager.sta->ip[0], "sta", (int)wifiManager.sta->ip[1], "sta", (int)wifiManager.sta->ip[2], "sta", (int)wifiManager.sta->ip[3]); data.concat(temp);
-      sprintf_P(temp,htmL_NET_GW, "sta", (int)wifiManager.sta->gw[0], "sta", (int)wifiManager.sta->gw[1], "sta", (int)wifiManager.sta->gw[2], "sta", (int)wifiManager.sta->gw[3]); data.concat(temp);
-      sprintf_P(temp,htmL_NET_SN, "sta", (int)wifiManager.sta->sn[0], "sta", (int)wifiManager.sta->sn[1], "sta", (int)wifiManager.sta->sn[2], "sta", (int)wifiManager.sta->sn[3]); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NET_IP, "sta", (int)wifiManager.sta->ip[0], "sta", (int)wifiManager.sta->ip[1], "sta", (int)wifiManager.sta->ip[2], "sta", (int)wifiManager.sta->ip[3]); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NET_GW, "sta", (int)wifiManager.sta->gw[0], "sta", (int)wifiManager.sta->gw[1], "sta", (int)wifiManager.sta->gw[2], "sta", (int)wifiManager.sta->gw[3]); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NET_SN, "sta", (int)wifiManager.sta->sn[0], "sta", (int)wifiManager.sta->sn[1], "sta", (int)wifiManager.sta->sn[2], "sta", (int)wifiManager.sta->sn[3]); data.concat(temp);
 
-      sprintf_P(temp,htmL_NETWORKSSID2, wifiManager.sta->dhcpEnabled ? "checked" : "",wifiManager.settings.stationEnabled ? "checked" : ""); data.concat(temp);
-      data.concat(FPSTR(htmL_NETWORKSSID3A));
-      sprintf_P(temp,htmL_NETWORKSSID3B, wifiManager.settings.ap.ssid, "", wifiManager.settings.ap.channel); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NETWORKSSID2, wifiManager.sta->dhcpEnabled ? "checked" : "",wifiManager.settings.stationEnabled ? "checked" : ""); data.concat(temp);
+      data.concat(FPSTR(html_tile_end));
       www.sendContentAndClear(data);
-    
-      uint8_t macap[6] = {0,0,0,0,0,0}; WiFi.softAPmacAddress(macap); temp1[0] = 0;
+
+      snprintf_P(temp, sizeof(temp), html_tile_text_beg, "33em", "19em", L_NETWORK_AP); data.concat(temp);
+      data.concat(FPSTR(htmL_NETWORKSSID3A));
+      snprintf_P(temp, sizeof(temp), htmL_NETWORKSSID3B, wifiManager.settings.ap.ssid); data.concat(temp);
+
+      uint8_t macap[6] = {0,0,0,0,0,0};
+      WiFi.softAPmacAddress(macap);
+      temp1[0] = 0;
       for (int i = 0; i < 6; i++) {
         char temp2[200];
-        sprintf(temp2, "%s%02x:", temp1, macap[i]);
-        strcpy(temp1, temp2);
+        snprintf(temp2, sizeof(temp2), "%s%02x:", temp1, macap[i]);
+        sstrcpy(temp1, temp2);
       }
       temp1[strlen(temp1) - 1] = 0;
       
-      sprintf_P(temp,htmL_NET_MAC,"ap", temp1); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NET_MAC_AP, temp1, wifiManager.settings.ap.channel); data.concat(temp);
       www.sendContentAndClear(data);
-      sprintf_P(temp,htmL_NET_IP, "ap", (int)wifiManager.settings.ap.ip[0], "ap", (int)wifiManager.settings.ap.ip[1], "ap", (int)wifiManager.settings.ap.ip[2], "ap", (int)wifiManager.settings.ap.ip[3]); data.concat(temp);
-      sprintf_P(temp,htmL_NET_GW, "ap", (int)wifiManager.settings.ap.gw[0], "ap", (int)wifiManager.settings.ap.gw[1], "ap", (int)wifiManager.settings.ap.gw[2], "ap", (int)wifiManager.settings.ap.gw[3]); data.concat(temp);
-      sprintf_P(temp,htmL_NET_SN, "ap", (int)wifiManager.settings.ap.sn[0], "ap", (int)wifiManager.settings.ap.sn[1], "ap", (int)wifiManager.settings.ap.sn[2], "ap", (int)wifiManager.settings.ap.sn[3]); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NET_IP, "ap", (int)wifiManager.settings.ap.ip[0], "ap", (int)wifiManager.settings.ap.ip[1], "ap", (int)wifiManager.settings.ap.ip[2], "ap", (int)wifiManager.settings.ap.ip[3]); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NET_GW, "ap", (int)wifiManager.settings.ap.gw[0], "ap", (int)wifiManager.settings.ap.gw[1], "ap", (int)wifiManager.settings.ap.gw[2], "ap", (int)wifiManager.settings.ap.gw[3]); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NET_SN, "ap", (int)wifiManager.settings.ap.sn[0], "ap", (int)wifiManager.settings.ap.sn[1], "ap", (int)wifiManager.settings.ap.sn[2], "ap", (int)wifiManager.settings.ap.sn[3]); data.concat(temp);
 
-      sprintf_P(temp,htmL_NETWORKSSID7, wifiManager.settings.accessPointEnabled ? "checked" : ""); data.concat(temp);
-    #elif OPERATIONAL_MODE == ETHERNET_W5100 || OPERATIONAL_MODE == ETHERNET_W5500
+      snprintf_P(temp, sizeof(temp), htmL_NETWORKSSID7, wifiManager.settings.accessPointEnabled ? "checked" : ""); data.concat(temp);
+      data.concat(FPSTR(html_tile_end));
+    #else
+      snprintf_P(temp, sizeof(temp), html_tile_text_beg, "33em", "19em", "Ethernet"); data.concat(temp);
+      data.concat(FPSTR(htmL_NETWORK_ETH_BEG));
 
-      data.concat(FPSTR(htmL_NETWORK_ETH_BEG)); temp1[0] = 0;
-      for (int i = 0; i < 6; i++) { sprintf(temp1, "%s%02x:", temp1, ethernetManager.settings.mac[i]); } temp1[strlen(temp1) - 1] = 0;
+      temp1[0] = 0;
+      for (int i = 0; i < 6; i++) {
+        char temp2[200];
+        snprintf(temp2, sizeof(temp2), "%s%02x:", temp1, ethernetManager.settings.mac[i]);
+        sstrcpy(temp1, temp2);
+      }
+      temp1[strlen(temp1) - 1] = 0;
 
-      sprintf_P(temp,htmL_NET_MAC,"eth", temp1); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NET_MAC,"eth", temp1); data.concat(temp);
       www.sendContentAndClear(data);
-      sprintf_P(temp,htmL_NET_IP, "eth", (int)ethernetManager.settings.ip[0], "eth", (int)ethernetManager.settings.ip[1], "eth", (int)ethernetManager.settings.ip[2], "eth", (int)ethernetManager.settings.ip[3]); data.concat(temp);
-      sprintf_P(temp,htmL_NET_GW, "eth", (int)ethernetManager.settings.gw[0], "eth", (int)ethernetManager.settings.gw[1], "eth", (int)ethernetManager.settings.gw[2], "eth", (int)ethernetManager.settings.gw[3]); data.concat(temp);
-      sprintf_P(temp,htmL_NET_SN, "eth", (int)ethernetManager.settings.sn[0], "eth", (int)ethernetManager.settings.sn[1], "eth", (int)ethernetManager.settings.sn[2], "eth", (int)ethernetManager.settings.sn[3]); data.concat(temp);
+
+      snprintf_P(temp, sizeof(temp), htmL_NET_IP, "eth", (int)ethernetManager.settings.ip[0], "eth", (int)ethernetManager.settings.ip[1], "eth", (int)ethernetManager.settings.ip[2], "eth", (int)ethernetManager.settings.ip[3]); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NET_GW, "eth", (int)ethernetManager.settings.gw[0], "eth", (int)ethernetManager.settings.gw[1], "eth", (int)ethernetManager.settings.gw[2], "eth", (int)ethernetManager.settings.gw[3]); data.concat(temp);
+      snprintf_P(temp, sizeof(temp), htmL_NET_SN, "eth", (int)ethernetManager.settings.sn[0], "eth", (int)ethernetManager.settings.sn[1], "eth", (int)ethernetManager.settings.sn[2], "eth", (int)ethernetManager.settings.sn[3]); data.concat(temp);
+      www.sendContentAndClear(data);
+
+      snprintf_P(temp, sizeof(temp), htmL_NETWORK_ETH_DHCP, ethernetManager.settings.dhcpEnabled ? "checked" : ""); data.concat(temp);
 
       data.concat(FPSTR(htmL_NETWORK_ETH_END));
+      data.concat(FPSTR(html_tile_end));
+    #endif
+    www.sendContentAndClear(data);
+
+    #ifdef OTA_PRESENT
+      OtaSettings otaSettings = {"", false};
+      nv().kv().get("OTA_SETTINGS", otaSettings);
+      
+      snprintf_P(temp, sizeof(temp), html_tile_text_beg, "33em", "10em", L_NETWORK_OTA_TITLE); data.concat(temp);
+      #if DISPLAY_RESET_CONTROLS != OFF
+        snprintf_P(temp, sizeof(temp), htmL_NETWORKSSID8); data.concat(temp);
+      #else
+        snprintf_P(temp, sizeof(temp), htmL_NETWORKSSID8, otaSettings.enabled ? "checked" : ""); data.concat(temp);
+      #endif
+      data.concat(FPSTR(html_tile_end));
       www.sendContentAndClear(data);
     #endif
 
+    snprintf_P(temp, sizeof(temp), html_tile_text_beg, "33em", "10em", L_NETWORK_PERFORMANCE); data.concat(temp);
+    snprintf_P(temp, sizeof(temp), htmL_NETWORKSerial, cmdTimeout, webTimeout); data.concat(temp);
+    data.concat(FPSTR(html_tile_end));
+    www.sendContentAndClear(data);
+
+    data.concat(F("<br class='clear' /><hr>"));
     data.concat(FPSTR(html_logout));
+    data.concat(F("<hr>"));
   }
-  
-  strcpy(temp,"</div></div></body></html>");
+
+  sstrcpy(temp, "</div></div></body></html>");
   data.concat(temp);
 
   www.sendContentAndClear(data);
@@ -142,7 +182,7 @@ void handleNetwork() {
 }
 
 void processNetworkGet() {
-  String v, v1;
+  String v;
   
   bool updateNV = false;
 
@@ -160,10 +200,10 @@ void processNetworkGet() {
 
     v = www.arg("webpwd");
     if (!v.equals(EmptyStr)) {
-      strcpy(wifiManager.settings.masterPassword, (char*)v.c_str());
+      sstrcpy(wifiManager.settings.masterPassword, (char*)v.c_str());
       updateNV = true;
     }
-  #elif OPERATIONAL_MODE == ETHERNET_W5100 || OPERATIONAL_MODE == ETHERNET_W5500
+  #else
     v = www.arg("login");
     if (!v.equals(EmptyStr)) {
       if (!strcmp(ethernetManager.settings.masterPassword, (char*)v.c_str())) loginRequired = false;
@@ -175,27 +215,25 @@ void processNetworkGet() {
 
     v = www.arg("webpwd");
     if (!v.equals(EmptyStr)) {
-      strcpy(ethernetManager.settings.masterPassword, (char*)v.c_str());
+      sstrcpy(ethernetManager.settings.masterPassword, (char*)v.c_str());
       updateNV = true;
     }
   #endif
 
   // Timeouts -----------------------------------------------------------------
-  #if defined(NV_TIMEOUT_CMD) && defined(NV_TIMEOUT_WEB)
-    // Cmd channel timeout
-    v = www.arg("ccto");
-    if (!v.equals(EmptyStr)) {
-      cmdTimeout = v.toInt();
-      nv.update(NV_TIMEOUT_CMD, (int16_t)cmdTimeout);
-    }
+  // Cmd channel timeout
+  v = www.arg("ccto");
+  if (!v.equals(EmptyStr)) {
+    cmdTimeout = v.toInt();
+    nv().kv().put("NETWORK_TIMEOUT_CMD", cmdTimeout);
+  }
 
-    // Web channel timeout
-    v = www.arg("wcto");
-    if (!v.equals(EmptyStr)) {
-      webTimeout = v.toInt();
-      nv.update(NV_TIMEOUT_WEB, (int16_t)webTimeout);
-    }
-  #endif
+  // Web channel timeout
+  v = www.arg("wcto");
+  if (!v.equals(EmptyStr)) {
+    webTimeout = v.toInt();
+    nv().kv().put("NETWORK_TIMEOUT_WEB", webTimeout);
+  }
 
   #if OPERATIONAL_MODE == WIFI
     // --------------------------------------------------------------------------
@@ -211,8 +249,8 @@ void processNetworkGet() {
           v.toUpperCase();
           uint8_t mac[6];
           int imac[6];
-          imac[0] = hexToInt(v.substring(0, 2)); imac[1] = hexToInt(v.substring(3, 2)); imac[2] = hexToInt(v.substring(6, 2));
-          imac[3] = hexToInt(v.substring(9, 2)); imac[4] = hexToInt(v.substring(12, 2)); imac[5] = hexToInt(v.substring(15, 2));
+          imac[0] = hexToInt(v.substring(0, 2)); imac[1] = hexToInt(v.substring(3, 5)); imac[2] = hexToInt(v.substring(6, 8));
+          imac[3] = hexToInt(v.substring(9, 11)); imac[4] = hexToInt(v.substring(12, 14)); imac[5] = hexToInt(v.substring(15, 17));
           if (imac[0] >= 0 && imac[1] >= 0 && imac[2] >= 0 && imac[3] >= 0 && imac[4] >= 0 && imac[5] >= 0) {
             mac[0] = imac[0]; mac[1] = imac[1]; mac[2] = imac[2]; mac[3] = imac[3]; mac[4] = imac[4]; mac[5] = imac[5]; 
             WiFi.macAddress(mac); restartRequired = true; 
@@ -223,21 +261,24 @@ void processNetworkGet() {
 
     // Station SSID
     v = www.arg("stssid");
-    v1 = v;
     if (!v.equals(EmptyStr)) {
-      if (!strcmp(wifiManager.sta->ssid, (char*)v.c_str())) restartRequired = true;
-      strcpy(wifiManager.sta->ssid, (char*)v.c_str());
+      if (strcmp(wifiManager.sta->ssid, (char*)v.c_str()) != 0) restartRequired = true;
+      sstrcpy(wifiManager.sta->ssid, (char*)v.c_str());
 
       // if this section was submitted set the stationEnabled default to false
       wifiManager.sta->dhcpEnabled = false;
       wifiManager.settings.stationEnabled = false;
+
+      // flag, the Station settings changed
+      updateNV = true;
+      restartRequired = true;
     }
 
     // Station password
     v = www.arg("stpwd");
     if (!v.equals(EmptyStr)) {
-      if (!strcmp(wifiManager.sta->pwd, (char*)v.c_str())) restartRequired = true;
-      strcpy(wifiManager.sta->pwd, (char*)v.c_str());
+      if (strcmp(wifiManager.staPwd->password, (char*)v.c_str()) != 0) restartRequired = true;
+      sstrcpy(wifiManager.staPwd->password, (char*)v.c_str());
     }
 
     // Station dhcp enabled
@@ -269,11 +310,6 @@ void processNetworkGet() {
     v = www.arg("stagw2"); if (!v.equals(EmptyStr)) wifiManager.sta->gw[1] = v.toInt();
     v = www.arg("stagw3"); if (!v.equals(EmptyStr)) wifiManager.sta->gw[2] = v.toInt();
     v = www.arg("stagw4"); if (!v.equals(EmptyStr)) wifiManager.sta->gw[3] = v.toInt();
-      
-    if (!v1.equals(EmptyStr)) {
-      updateNV = true;
-      restartRequired = true;
-    }
 
     // --------------------------------------------------------------------------
     // Access-Point MAC
@@ -288,8 +324,8 @@ void processNetworkGet() {
           v.toUpperCase();
           uint8_t mac[6];
           int imac[6];
-          imac[0] = hexToInt(v.substring(0, 2)); imac[1] = hexToInt(v.substring(3, 2)); imac[2] = hexToInt(v.substring(6, 2));
-          imac[3] = hexToInt(v.substring(9, 2)); imac[4] = hexToInt(v.substring(12, 2)); imac[5] = hexToInt(v.substring(15, 2));
+          imac[0] = hexToInt(v.substring(0, 2)); imac[1] = hexToInt(v.substring(3, 5)); imac[2] = hexToInt(v.substring(6, 8));
+          imac[3] = hexToInt(v.substring(9, 11)); imac[4] = hexToInt(v.substring(12, 14)); imac[5] = hexToInt(v.substring(15, 17));
           if (imac[0] >= 0 && imac[1] >= 0 && imac[2] >= 0 && imac[3] >= 0 && imac[4] >= 0 && imac[5] >= 0) {
             mac[0] = imac[0]; mac[1] = imac[1]; mac[2] = imac[2]; mac[3] = imac[3]; mac[4] = imac[4]; mac[5] = imac[5];
             WiFi.softAPmacAddress(mac); restartRequired = true; 
@@ -301,18 +337,22 @@ void processNetworkGet() {
     // Access-Point SSID
     v = www.arg("apssid");
     if (!v.equals(EmptyStr)) {
-      if (!strcmp(wifiManager.settings.ap.ssid, (char*)v.c_str())) restartRequired = true;
-      strcpy(wifiManager.settings.ap.ssid, (char*)v.c_str());
+      if (strcmp(wifiManager.settings.ap.ssid, (char*)v.c_str()) != 0) restartRequired = true;
+      sstrcpy(wifiManager.settings.ap.ssid, (char*)v.c_str());
 
       // if this section was submitted set the accessPointEnabled default to false
       wifiManager.settings.accessPointEnabled = false;
+
+      // flag, the AP settings changed
+      updateNV = true;
+      restartRequired = true;
     }
 
     // Access-Point password
     v = www.arg("appwd");
     if (!v.equals(EmptyStr)) {
-      if (!strcmp(wifiManager.settings.ap.pwd, (char*)v.c_str())) restartRequired = true;
-      strcpy(wifiManager.settings.ap.pwd, (char*)v.c_str());
+      if (strcmp(wifiManager.settings.ap.pwd, (char*)v.c_str()) != 0) restartRequired = true;
+      sstrcpy(wifiManager.settings.ap.pwd, (char*)v.c_str());
     }
 
     // Access-Point channel
@@ -346,17 +386,79 @@ void processNetworkGet() {
     v = www.arg("apgw3"); if (!v.equals(EmptyStr)) wifiManager.settings.ap.gw[2] = v.toInt();
     v = www.arg("apgw4"); if (!v.equals(EmptyStr)) wifiManager.settings.ap.gw[3] = v.toInt();
 
-    if (!v.equals(EmptyStr)) {
-      updateNV = true;
-      restartRequired = true;
-    }
+    #ifdef OTA_PRESENT
+      bool otaChanged = false;
+      bool otaReboot = false;
+      OtaSettings otaSettings = {"", false};
+      nv().kv().get("OTA_SETTINGS", otaSettings);
 
-    if (updateNV) {
-      nv.writeBytes(NV_WIFI_SETTINGS_BASE, &wifiManager.settings, sizeof(WifiSettings));
-    }
-  #elif OPERATIONAL_MODE == ETHERNET_W5100 || OPERATIONAL_MODE == ETHERNET_W5500
+      // OTA password
+      v = www.arg("otapwd");
+      if (!v.equals(EmptyStr)) {
+        otaChanged = true;
+        sstrcpy(otaSettings.password, (char*)v.c_str());
+      }
+
+      // OTA one-shot reboot request
+      v = www.arg("otareboot");
+      if (!v.equals(EmptyStr)) {
+        otaChanged = true;
+        otaReboot = true;
+        otaSettings.enabled = true;
+      } else {
+        // OTA form submitted: if otaen is absent, treat as unchecked (forced OFF)
+        if (www.hasArg("otapwd") || www.hasArg("otaen")) {
+          bool otaEnabledRequested = false;
+          if (www.hasArg("otaen")) {
+            v = www.arg("otaen");
+            otaEnabledRequested = (v.toInt() != 0);
+          }
+
+          if (otaSettings.enabled != otaEnabledRequested) {
+            otaChanged = true;
+            otaSettings.enabled = otaEnabledRequested;
+            restartRequired = true;
+          }
+        }
+      }
+
+      if (otaChanged) nv().kv().put("OTA_SETTINGS", otaSettings);
+
+      if (otaReboot) {
+        // allow background tasks time to run before reset
+        tasks.yield(10000);
+
+        // Only reset OnStep when SWS uses a mixed-baud startup sequence.
+        #if SERIAL_BAUD != SERIAL_BAUD_DEFAULT
+          delay(1000);
+          #if !defined(RESET_PIN) || RESET_PIN == OFF
+            onStep.commandBlind(":ERESET#");
+          #else
+            digitalWrite(RESET_PIN, RESET_PIN_STATE);
+            pinMode(RESET_PIN, OUTPUT);
+            delay(250);
+            pinMode(RESET_PIN, INPUT);
+          #endif
+
+          tasks.yield(1000);
+        #endif
+
+        HAL_RESET();
+        return;
+      }
+    #endif
+
+    if (updateNV) { wifiManager.writeSettings(); }
+  #else
     // Ethernet ip
-    v = www.arg("ethip1"); if (!v.equals(EmptyStr)) ethernetManager.settings.ip[0] = v.toInt();
+    v = www.arg("ethip1");
+    if (!v.equals(EmptyStr)) {
+      ethernetManager.settings.ip[0] = v.toInt();
+      ethernetManager.settings.dhcpEnabled = false;
+    }
+    // Ethernet dhcp enabled
+    v = www.arg("ethdhcp"); if (!v.equals(EmptyStr)) ethernetManager.settings.dhcpEnabled = v.toInt();
+
     v = www.arg("ethip2"); if (!v.equals(EmptyStr)) ethernetManager.settings.ip[1] = v.toInt();
     v = www.arg("ethip3"); if (!v.equals(EmptyStr)) ethernetManager.settings.ip[2] = v.toInt();
     v = www.arg("ethip4"); if (!v.equals(EmptyStr)) ethernetManager.settings.ip[3] = v.toInt();
@@ -379,7 +481,7 @@ void processNetworkGet() {
     }
 
     if (updateNV) {
-      nv.writeBytes(NV_ETHERNET_SETTINGS_BASE, &ethernetManager.settings, sizeof(EthernetSettings));
+      ethernetManager.writeSettings();
     }
   #endif
 }

@@ -54,7 +54,7 @@ void handleMount()
   }
 
   // scripts
-  sprintf_P(temp, html_script_ajax_get, "mount-ajax-get.txt");
+  snprintf_P(temp, sizeof(temp), html_script_ajax_get, "mount-ajax-get.txt");
   data.concat(temp);
   data.concat(FPSTR(html_script_ajax_shortcuts));
   data.concat(FPSTR(html_script_ajax_date_time_return));
@@ -72,6 +72,9 @@ void handleMount()
   guideTile(data);
   trackingTile(data);
   if (status.pecEnabled) pecTile(data);
+  #if DISPLAY_COORDINATE_ORIGIN == ON
+    coordinateTile(data);
+  #endif
   limitsTile(data);
 
   data.concat(F("<br class='clear' />"));
@@ -142,6 +145,9 @@ void processMountGet()
 {
   siteTileGet();
   homeParkTileGet();
+  #if DISPLAY_COORDINATE_ORIGIN == ON
+    coordinateTileGet();
+  #endif
   alignTileGet();
   gotoTileGet();
   libraryTileGet();

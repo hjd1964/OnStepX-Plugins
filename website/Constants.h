@@ -2,6 +2,8 @@
 // Constants
 #pragma once
 
+#define WEBSITE_PLUGIN_VERSION      "2.10c"
+
 #define METRIC                       ON
 #define IMPERIAL                     -200
 #define LOCALE_DEFAULT               -201

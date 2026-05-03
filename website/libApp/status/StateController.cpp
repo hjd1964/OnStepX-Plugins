@@ -71,7 +71,7 @@ void State::updateController(bool now)
   // General Error
   strcpy(temp, "");
   if (status.lastError != ERR_NONE) strcat(temp, "<font class=\"y\">"); 
-  status.getLastErrorMessage(temp1);
+  status.getLastErrorMessage(temp1, sizeof(temp1));
   if (!status.onStepFound) strcat(temp, "?"); else strcat(temp, temp1);
   if (status.lastError != ERR_NONE) strcat(temp, "</font>"); 
   strncpy(lastErrorStr, temp, 80); lastErrorStr[79] = 0; delay(0);
@@ -88,7 +88,7 @@ void State::updateController(bool now)
     long signal_strength_qty = 2*(signal_strength_dbm + 100);
     if (signal_strength_qty > 100) signal_strength_qty = 100; 
     else if (signal_strength_qty < 0) signal_strength_qty = 0;
-    sprintf(temp, "%lddBm (%ld%%)", signal_strength_dbm, signal_strength_qty);
+    snprintf(temp, sizeof(temp), "%lddBm (%ld%%)", signal_strength_dbm, signal_strength_qty);
     strncpy(signalStrengthStr, temp, 20); signalStrengthStr[19] = 0; delay(0);
   #endif
 
@@ -105,7 +105,7 @@ void State::axisStatusUpdate() {
     if (driverStatusFailedAttempts[axis] < 3) {
       char cmd[40];
       char reply[40];
-      sprintf(cmd, ":GXU%d#", axis + 1);
+      snprintf(cmd, sizeof(cmd), ":GXU%d#", axis + 1);
       if (onStep.command(cmd, reply) && reply[0] != '0') {
         driverStatusFailedAttempts[axis] = 0;
         driver[axis].valid = true;

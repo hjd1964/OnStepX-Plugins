@@ -21,7 +21,7 @@ bool State::updateAuxiliary(bool all, bool now) {
     char cmd[20], out[80];
 
     if (all || (status.feature[i].purpose == SWITCH || status.feature[i].purpose == ANALOG_OUTPUT || status.feature[i].purpose == DEW_HEATER || status.feature[i].purpose == INTERVALOMETER)) {
-      sprintf(cmd,":GXX%d#", i + 1);
+      snprintf(cmd, sizeof(cmd), ":GXX%d#", i + 1);
 
       if (!onStep.command(cmd, out) || strlen(out) == 0) valid = false; else valid = true;
 

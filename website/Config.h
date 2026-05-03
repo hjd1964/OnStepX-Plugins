@@ -13,7 +13,8 @@
 //      Parameter Name              Value   Default  Notes                                                                      Hint
 // DISPLAY -------------------------------------------------------------------------------------------------------------------------
 #ifndef DISPLAY_LANGUAGE
-#define DISPLAY_LANGUAGE             L_en //   L_en, English. Or L_ce, L_de, L_en, L_us, L_es two letter country code.        Adjust
+#define DISPLAY_LANGUAGE             L_en //   L_en, English. Or L_ca, L_cn, L_de, L_en, L_es, L_fr, L_it, L_jp, L_us.        Adjust
+                                          //         Two letter country code (see Locales.h for more information.)
 #endif
 #ifndef DISPLAY_WEATHER
 #define DISPLAY_WEATHER               OFF //    OFF, ON ambient conditions in locale default units.                           Option
@@ -24,11 +25,11 @@
 #ifndef DISPLAY_WIFI_SIGNAL_STRENGTH
 #define DISPLAY_WIFI_SIGNAL_STRENGTH   ON //     ON, Wireless signal strength reported via web interface. OFF otherwise.      Option
 #endif
+#ifndef DISPLAY_COORDINATE_ORIGIN
+#define DISPLAY_COORDINATE_ORIGIN     OFF //    OFF, ON to display the coordinate origin control tile on the mount page.      Option
+#endif
 #ifndef DISPLAY_SERVO_MONITOR
 #define DISPLAY_SERVO_MONITOR         OFF //    OFF, ON to display the servo monitor (any axis.)                              Option
-#endif
-#ifndef DISPLAY_SERVO_ORIGIN_CONTROLS
-#define DISPLAY_SERVO_ORIGIN_CONTROLS OFF //    OFF, ON to display control to set the absolute encoder origin for servos.     Option
 #endif
 #ifndef DISPLAY_RESET_CONTROLS
 #define DISPLAY_RESET_CONTROLS         ON //     ON, ON to allow reset of OnStep, FWU for STM32 firmware upload pin HIGH.     Option

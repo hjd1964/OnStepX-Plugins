@@ -301,6 +301,9 @@
 #define L_PARK "Parken"
 #define L_SET_PARK "Setze Parkposition"
 #define L_SET_PARK_CURRENT_COORDS "Parkposition auf aktuelle Koordinaten setzen"
+#define L_COORD_ORIGIN_TITLE "Koordinatenursprung"
+#define L_COORD_ORIGIN "Koordinatenursprung setzen"
+#define L_COORD_ORIGIN_MSG "In Home-Position bei abgeschalteter Nachfuehrung legt dies den physikalischen/koordinatenbezogenen Ursprung fuer Sync-Grenzen fest."
 
 #define L_TRK_FASTER "schneller"
 #define L_TRK_SLOWER "langsamer"
@@ -434,7 +437,7 @@
 #define L_NETWORK_PWD "Passwort"
 #define L_NETWORK_PWD_MSG "mindestens 8 Zeichen"
 #define L_NETWORK_EN_DHCP "DHCP aktivieren"
-#define L_NETWORK_EN_DHCP_MSG "Hinweis: obige Adressen werden ignoriert wenn DHCP aktiviert ist!"
+#define L_NETWORK_EN_DHCP_MSG "Bei DHCP werden IPs ignoriert"
 #define L_NETWORK_EN_STA "Aktiviere Stationsmodus"
 #define L_IP_ADDRESS "IP Addresse"
 #define L_GATEWAY "Gateway"
@@ -442,9 +445,13 @@
 #define L_NETWORK_CHA "Kanal"
 #define L_NETWORK_EN_AP_MODE "Aktiviere Access-Point Modus"
 
+#define L_NETWORK_OTA_TITLE "OTA SWS-Firmware-Aktualisierung"
+#define L_NETWORK_EN_OTA    "OTA-Modus aktivieren"
+#define L_REBOOT_OTA        "In den OTA-Modus neu starten"
+
 #define L_NETWORK_CONFIG_SECURITY "Netzwerk Konfiguration Sicherheit"
 
-#define L_NETWORK_AP "Access Point Modus"
+#define L_NETWORK_AP "Access Point Modus (auto wenn der Stationsmodus keine Verbindung herstellt)"
 
 #define L_NETWORK_RESTART_MSG "Sie m&uuml;ssen <u>manuell</u> neu starten, damit die &Auml;nderungen wirksam werden."
 

@@ -291,6 +291,9 @@
 #define L_PARK "Estacionar"
 #define L_SET_PARK "Colocar en Posición de Estacionamiento"
 #define L_SET_PARK_CURRENT_COORDS "Establecer la posición de estacionamiento en las coordenadas actuales"
+#define L_COORD_ORIGIN_TITLE "Origen de Coordenadas"
+#define L_COORD_ORIGIN "Establecer Origen de Coordenadas"
+#define L_COORD_ORIGIN_MSG "En la posicion de inicio y con el seguimiento apagado, establece el origen fisico/de coordenadas usado por los limites de sincronizacion."
 
 #define L_TRK_FASTER "más rápido"
 #define L_TRK_SLOWER "más lento"
@@ -423,7 +426,7 @@
 #define L_NETWORK_PWD "Contraseña"
 #define L_NETWORK_PWD_MSG "8 caracteres mínimo."
 #define L_NETWORK_EN_DHCP "Habilitar DHCP"
-#define L_NETWORK_EN_DHCP_MSG "Nota: las direcciones anteriores se ignoran si DHCP está habilitado"
+#define L_NETWORK_EN_DHCP_MSG "Si DHCP esta activo, se ignoran IPs"
 #define L_NETWORK_EN_STA "Habilitar modo de estación"
 #define L_IP_ADDRESS "Dirección IP"
 #define L_GATEWAY "Puerta de enlace"
@@ -431,9 +434,13 @@
 #define L_NETWORK_CHA "Canal"
 #define L_NETWORK_EN_AP_MODE "Habilitar modo de punto de acceso"
 
+#define L_NETWORK_OTA_TITLE "Actualización de firmware OTA SWS"
+#define L_NETWORK_EN_OTA "Activar modo OTA"
+#define L_REBOOT_OTA "Reiniciar en modo OTA"
+
 #define L_NETWORK_CONFIG_SECURITY "Configuración de Seguridad de red"
 
-#define L_NETWORK_AP "Modo de punto de acceso"
+#define L_NETWORK_AP "Modo de punto de acceso (auto si el modo Estación no conecta)"
 
 #define L_NETWORK_RESTART_MSG "Debes <u>manualmente</u> reiniciar para que los cambios surtan efecto."
 
