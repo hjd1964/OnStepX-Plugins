@@ -1,7 +1,7 @@
 // BluetoothBle plugin configuration
 #pragma once
 
-// Name the ESP32 advertises over BLE — shown in the iOS device picker
+// Name the ESP32 advertises over BLE — shown in the device picker
 #ifndef BLE_DEVICE_NAME
   #define BLE_DEVICE_NAME               "OnStepX"
 #endif

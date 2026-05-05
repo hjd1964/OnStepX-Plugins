@@ -55,7 +55,7 @@ void BluetoothBle::init() {
 
   NimBLEService *svc = server->createService(NUS_SERVICE_UUID);
 
-  // iOS writes LX200 commands to this characteristic.
+  // BLE client writes LX200 commands to this characteristic.
   NimBLECharacteristic *txCh = svc->createCharacteristic(
     NUS_TX_CHAR_UUID,
     NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR
@@ -70,7 +70,7 @@ void BluetoothBle::init() {
   NimBLEAdvertising *adv = NimBLEDevice::getAdvertising();
   adv->addServiceUUID(NUS_SERVICE_UUID);
   adv->setScanResponse(true);
-  adv->setMinPreferred(0x06);  // recommended for iOS connection stability
+  adv->setMinPreferred(0x06);  // recommended connection interval range for stability
   adv->setMaxPreferred(0x12);
   NimBLEDevice::startAdvertising();
 
@@ -180,7 +180,7 @@ void BluetoothBle::processCommand(const char *cmd) {
     return;
   }
 
-  // The iOS parser requires a '#' terminator.  Append one if it's missing.
+  // BLE NUS has no length-framing; append '#' so any client can reliably delimit responses.
   size_t rlen = strlen(resp);
   char   buf[130];
   if (resp[rlen - 1] == '#') {

@@ -1,7 +1,7 @@
 // BluetoothBle plugin for OnStepX
 //
 // Bridges the OnStepX LX200 command interface over BLE using the Nordic UART
-// Service (NUS), so iOS/Android apps can connect without a WiFi module.
+// Service (NUS), so any BLE client (iOS, Android, desktop) can connect without a WiFi module.
 //
 // Requires: NimBLE-Arduino library
 //   Arduino IDE  → Sketch ▸ Include Library ▸ Manage Libraries → "NimBLE-Arduino"
@@ -37,7 +37,7 @@ private:
   void processCommand(const char *cmd);
 
   SemaphoreHandle_t mutex     = nullptr;
-  NimBLECharacteristic *rxChar = nullptr;  // notify characteristic (ESP32 → iOS)
+  NimBLECharacteristic *rxChar = nullptr;  // notify characteristic (ESP32 → client)
 
   // Shared receive buffer — written by the BLE task, drained by loop().
   char   rxBuf[512] = "";
