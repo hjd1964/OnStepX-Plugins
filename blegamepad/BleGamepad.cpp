@@ -1039,7 +1039,9 @@ void BleGamepad::bleSetup()
 
   UNUSED(xReturned);
 
-  NimBLEDevice::init("OnStepX");
+  if (!NimBLEDevice::isInitialized()) {
+    NimBLEDevice::init("OnStepX");
+  }
   NimBLEDevice::setSecurityAuth(BLE_SM_PAIR_AUTHREQ_SC);
 
   /** Optional: set the transmit power */
