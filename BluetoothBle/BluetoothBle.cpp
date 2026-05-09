@@ -5,7 +5,7 @@
 
 #include "Config.h"
 #include "../../Common.h"
-#include "../../lib/serial/CommandBroker.h"
+#include "../../libApp/commands/CommandBroker.h"
 #include "../../lib/tasks/OnTask.h"
 
 #include <NimBLEDevice.h>
