@@ -5,7 +5,7 @@
 
 #include "Config.h"
 #include "../../Common.h"
-#include "../../lib/serial/Serial_Local.h"
+#include "../../lib/serial/CommandBroker.h"
 #include "../../lib/tasks/OnTask.h"
 
 #include <NimBLEDevice.h>
@@ -111,95 +111,63 @@ void BluetoothBle::onBleWrite(const uint8_t *data, size_t len) {
 // ── loop (runs on OnTask every 20 ms) ────────────────────────────────────────
 
 void BluetoothBle::loop() {
-  // Snapshot the shared buffer so we hold the mutex for as short a time as possible.
-  char   local[512] = "";
-  bool   connected  = false;
+  // If a command is in-flight, check the broker for a result.
+  if (pendingHandle) {
+    char reply[128] = "";
+    CommandBrokerStatus s = commandBroker.result(pendingHandle, reply, sizeof(reply));
+    if (s == CB_DONE || s == CB_TIMEOUT) {
+      if (s == CB_DONE && reply[0] != '\0') {
+        size_t rlen = strlen(reply);
+        char buf[130];
+        if (reply[rlen - 1] == '#') {
+          strncpy(buf, reply, sizeof(buf) - 1);
+          buf[sizeof(buf) - 1] = '\0';
+        } else {
+          snprintf(buf, sizeof(buf), "%s#", reply);
+        }
+        VF("MSG: BluetoothBle, resp: "); VLF(buf);
+        xSemaphoreTake(mutex, portMAX_DELAY);
+        bool conn = clientConnected;
+        xSemaphoreGive(mutex);
+        if (conn && rxChar) {
+          rxChar->setValue(reinterpret_cast<uint8_t *>(buf), strlen(buf));
+          rxChar->notify();
+        }
+      } else {
+        VLF("MSG: BluetoothBle, no response");
+      }
+      // result() clears pendingHandle via reference on terminal states
+    }
+    return;  // don't accept new commands while one is in-flight
+  }
 
+  // Extract one complete '#'-terminated command from the shared buffer.
+  char cmd[256] = "";
   xSemaphoreTake(mutex, portMAX_DELAY);
-  connected = clientConnected;
-  if (rxLen > 0 && connected) {
-    memcpy(local, rxBuf, rxLen + 1);
-    rxLen    = 0;
-    rxBuf[0] = '\0';
+  if (clientConnected && rxLen > 0) {
+    char *end = (char *)memchr(rxBuf, '#', rxLen);
+    if (end) {
+      int cmdLen = (int)(end - rxBuf) + 1;
+      if (cmdLen < (int)sizeof(cmd)) {
+        memcpy(cmd, rxBuf, cmdLen);
+        cmd[cmdLen] = '\0';
+        rxLen -= cmdLen;
+        memmove(rxBuf, rxBuf + cmdLen, rxLen);
+        rxBuf[rxLen] = '\0';
+      }
+    }
   }
   xSemaphoreGive(mutex);
 
-  if (!connected || local[0] == '\0') return;
-
-  // Walk the buffer, processing one '#'-terminated command at a time.
-  char *p = local;
-  while (*p) {
-    char *end = strchr(p, '#');
-    if (!end) {
-      // Partial command — put the leftover bytes back at the front of rxBuf
-      // so the next loop() call can complete it with fresh incoming data.
-      xSemaphoreTake(mutex, portMAX_DELAY);
-      int partLen = (int)strlen(p);
-      int total   = partLen + rxLen;
-      if (total < (int)sizeof(rxBuf) - 1) {
-        memmove(rxBuf + partLen, rxBuf, rxLen);
-        memcpy(rxBuf, p, partLen);
-        rxLen        = total;
-        rxBuf[rxLen] = '\0';
-      }
-      xSemaphoreGive(mutex);
-      break;
-    }
-
-    int cmdLen = (int)(end - p) + 1;  // includes '#'
-    if (cmdLen > 0 && cmdLen < (int)sizeof(local)) {
-      char cmd[256] = "";
-      strncpy(cmd, p, cmdLen);
-      cmd[cmdLen] = '\0';
-      processCommand(cmd);
-    }
-    p = end + 1;
-  }
+  if (cmd[0]) processCommand(cmd);
 }
 
 // ── processCommand ────────────────────────────────────────────────────────────
 
 void BluetoothBle::processCommand(const char *cmd) {
   VF("MSG: BluetoothBle, cmd: "); VLF(cmd);
-
-  SERIAL_LOCAL.transmit(cmd);
-
-  // Poll in 5 ms increments up to BLE_RESPONSE_TIMEOUT_MS for OnStepX to
-  // produce a response.  Commands with no response (motion, stop, tracking)
-  // will exhaust the timeout and result in no BLE notification — which is
-  // correct: the iOS app doesn't wait for a reply from those commands.
-  const int polls = BLE_RESPONSE_TIMEOUT_MS / 5;
-  for (int i = 0; i < polls; i++) {
-    tasks.yield(5);
-    if (SERIAL_LOCAL.receiveAvailable() > 0) break;
-  }
-
-  char *resp = SERIAL_LOCAL.receive();
-  if (!resp || resp[0] == '\0') {
-    VLF("MSG: BluetoothBle, no response");
-    return;
-  }
-
-  // BLE NUS has no length-framing; append '#' so any client can reliably delimit responses.
-  size_t rlen = strlen(resp);
-  char   buf[130];
-  if (resp[rlen - 1] == '#') {
-    strncpy(buf, resp, sizeof(buf) - 1);
-    buf[sizeof(buf) - 1] = '\0';
-  } else {
-    snprintf(buf, sizeof(buf), "%s#", resp);
-  }
-
-  VF("MSG: BluetoothBle, resp: "); VLF(buf);
-
-  xSemaphoreTake(mutex, portMAX_DELAY);
-  bool conn = clientConnected;
-  xSemaphoreGive(mutex);
-
-  if (conn && rxChar) {
-    rxChar->setValue(reinterpret_cast<uint8_t *>(buf), strlen(buf));
-    rxChar->notify();
-  }
+  pendingHandle = commandBroker.request(cmd, BLE_RESPONSE_TIMEOUT_MS);
+  if (!pendingHandle) { DLF("ERR: BluetoothBle, CommandBroker slots full"); }
 }
 
 // ── command (no custom LX200 commands) ───────────────────────────────────────

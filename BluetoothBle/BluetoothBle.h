@@ -43,7 +43,8 @@ private:
   char   rxBuf[512] = "";
   int    rxLen      = 0;
 
-  bool   clientConnected = false;
+  bool    clientConnected = false;
+  uint8_t pendingHandle   = 0;  // CommandBroker handle; 0 = none in-flight
 };
 
 extern BluetoothBle bluetoothBle;

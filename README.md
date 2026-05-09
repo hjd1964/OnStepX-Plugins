@@ -134,7 +134,6 @@ Next, make sure that `Firmware` is selected in the upload page, and click "Choos
  - If you're using PlatformIO, the firmware should be in the `.pio/build/<environment-name>` directory of your project.
 
 Once the file is selected, the upload is started automatically, and the board should reboot when it's successful.
-=======
 
 ## Metrics
 
