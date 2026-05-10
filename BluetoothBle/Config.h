@@ -10,5 +10,5 @@
 // forwarding a command.  Most queries respond in < 5 ms; this cap covers
 // slow or no-response commands without blocking the BLE loop indefinitely.
 #ifndef BLE_RESPONSE_TIMEOUT_MS
-  #define BLE_RESPONSE_TIMEOUT_MS        50
+  #define BLE_RESPONSE_TIMEOUT_MS        1000
 #endif
