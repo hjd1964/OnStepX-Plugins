@@ -1,5 +1,49 @@
 # OnStepX-Plugins
 
+
+## Bluetooth BLE
+
+Exposes the OnStepX LX200 command interface over BLE using the **Nordic UART Service (NUS)**, so iOS and Android apps that support NUS can connect wirelessly without a WiFi module.
+
+> **Note:** This plugin uses BLE (Bluetooth Low Energy / Bluetooth 4.0+) and is **not compatible with the existing OnStep Android app** (OnStep Controller2). That app uses classic Bluetooth SPP, which is a completely different protocol. To use OnStepX with the existing Android app do not use thie plugin.
+
+### Requirements
+
+- **Platform:** ESP32 only
+- **Library:** [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) — use version **1.4.2** for ESP32 Arduino core 2.x. NimBLE-Arduino 2.x requires core 3.x and will not compile against 2.0.17.
+  - Arduino IDE: *Sketch → Include Library → Manage Libraries* → search **NimBLE-Arduino** → select version **1.4.2** from the version dropdown → Install
+  - PlatformIO: add `h2zero/NimBLE-Arduino@^1.4.2` to `lib_deps`
+- **Do not** set `SERIAL_BLUETOOTH` in OnStepX's `Config.h` while using this plugin. Classic Bluetooth and BLE share the same radio hardware on the ESP32 and the two stacks will conflict, causing crashes or failed initialization at startup. Ensure `SERIAL_BLUETOOTH` is set to `OFF` in `Config.h`.
+
+### Installation
+
+Copy the `/BluetoothBle` directory into the `OnStepX/src/plugins` directory and add an entry to `Plugins.config.h`:
+
+```cpp
+#define PLUGIN1                    bluetoothBle
+#include "BluetoothBle/BluetoothBle.h"
+#define PLUGIN1_COMMAND_PROCESSING OFF
+```
+
+Configuration is in `/BluetoothBle/Config.h`:
+
+```cpp
+#define BLE_DEVICE_NAME         "OnStepX"  // name shown in iOS device picker
+#define BLE_RESPONSE_TIMEOUT_MS  50        // ms to wait for a response from OnStepX
+```
+
+### How it works
+
+The plugin advertises the NUS service (`6E400001-…`) and bridges BLE UART traffic to `SERIAL_LOCAL`, which is OnStepX's internal LX200 command processor. Any NUS-compatible app (including the companion iOS app) can connect, send LX200 commands, and receive responses exactly as it would over WiFi.
+
+NUS characteristic layout (names are from the central/iOS perspective):
+
+| UUID suffix | Direction | Property |
+|-------------|-----------|----------|
+| `…0002` | iOS → ESP32 (commands) | WRITE / WRITE_NR |
+| `…0003` | ESP32 → iOS (responses) | NOTIFY |
+
+
 ## Website
 
 The SWS Website for ESP32's and WiFi only, ported to OnStepX.
@@ -90,7 +134,6 @@ Next, make sure that `Firmware` is selected in the upload page, and click "Choos
  - If you're using PlatformIO, the firmware should be in the `.pio/build/<environment-name>` directory of your project.
 
 Once the file is selected, the upload is started automatically, and the board should reboot when it's successful.
-=======
 
 ## Metrics
 
