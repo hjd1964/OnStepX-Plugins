@@ -53,6 +53,43 @@ void pageHeader(int selected) {
     data.concat(FPSTR(html_links_net_end));
   }
 
+  #if defined(WEBSITE_PLUGIN_PAGE1_TITLE) && defined(WEBSITE_PLUGIN_PAGE1_URL)
+    #ifndef WEBSITE_PLUGIN_PAGE1_TARGET
+      #define WEBSITE_PLUGIN_PAGE1_TARGET ""
+    #endif
+    data.concat(F("<a href='" WEBSITE_PLUGIN_PAGE1_URL "' target='" WEBSITE_PLUGIN_PAGE1_TARGET "'>" WEBSITE_PLUGIN_PAGE1_TITLE "</a>"));
+  #endif
+
+  #if defined(WEBSITE_PLUGIN_PAGE2_TITLE) && defined(WEBSITE_PLUGIN_PAGE2_URL)
+    #ifndef WEBSITE_PLUGIN_PAGE2_TARGET
+      #define WEBSITE_PLUGIN_PAGE2_TARGET ""
+    #endif
+    data.concat(F("<a href='" WEBSITE_PLUGIN_PAGE2_URL "' target='" WEBSITE_PLUGIN_PAGE2_TARGET "'>" WEBSITE_PLUGIN_PAGE2_TITLE "</a>"));
+  #endif
+
+  #if defined(WEBSITE_PLUGIN_PAGE3_TITLE) && defined(WEBSITE_PLUGIN_PAGE3_URL)
+    #ifndef WEBSITE_PLUGIN_PAGE3_TARGET
+      #define WEBSITE_PLUGIN_PAGE3_TARGET ""
+    #endif
+    data.concat(F("<a href='" WEBSITE_PLUGIN_PAGE3_URL "' target='" WEBSITE_PLUGIN_PAGE3_TARGET "'>" WEBSITE_PLUGIN_PAGE3_TITLE "</a>"));
+  #endif
+
+  #if defined(WEBSITE_PLUGIN_PAGE4_TITLE) && defined(WEBSITE_PLUGIN_PAGE4_URL)
+    #ifndef WEBSITE_PLUGIN_PAGE4_TARGET
+      #define WEBSITE_PLUGIN_PAGE4_TARGET ""
+    #endif
+    data.concat(F("<a href='" WEBSITE_PLUGIN_PAGE4_URL "' target='" WEBSITE_PLUGIN_PAGE4_TARGET "'>" WEBSITE_PLUGIN_PAGE4_TITLE "</a>"));
+  #endif
+
+  #if defined(WEBSITE_PLUGIN_PAGE5_TITLE) && defined(WEBSITE_PLUGIN_PAGE5_URL)
+    #ifndef WEBSITE_PLUGIN_PAGE5_TARGET
+      #define WEBSITE_PLUGIN_PAGE5_TARGET ""
+    #endif
+    data.concat(F("<a href='" WEBSITE_PLUGIN_PAGE5_URL "' target='" WEBSITE_PLUGIN_PAGE5_TARGET "'>" WEBSITE_PLUGIN_PAGE5_TITLE "</a>"));
+  #endif
+
+
+
   data.concat(FPSTR(html_onstep_header_end));
   www.sendContentAndClear(data);
 }
