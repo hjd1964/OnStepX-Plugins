@@ -55,5 +55,12 @@
 #define HOME_OFFSET_RANGE_AXIS2      7200 //  7200, allow adjusting home offset up to +/- 2 degrees                           Infreq
 #endif
 
+// Extra menu links, up to 5
+// For each link, define the title and URL. If you want the link to open in a new tab, define the target as "_blank".
+// Example:
+// #define WEBSITE_PLUGIN_PAGE1_TITLE "My first link"
+// #define WEBSITE_PLUGIN_PAGE1_URL "/my-first-link-target"
+// #define WEBSITE_PLUGIN_PAGE1_TARGET "_blank"
+
 // THAT'S IT FOR USER CONFIGURATION!
 // -------------------------------------------------------------------------------
