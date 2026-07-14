@@ -31,6 +31,9 @@
 #ifndef DISPLAY_SERVO_MONITOR
 #define DISPLAY_SERVO_MONITOR         OFF //    OFF, ON to display the servo monitor (any axis.)                              Option
 #endif
+#ifndef DISPLAY_STALLGUARD_MONITOR
+#define DISPLAY_STALLGUARD_MONITOR    OFF //    OFF, ON to display the StallGuard monitor (any supported axis.)               Option
+#endif
 #ifndef DISPLAY_RESET_CONTROLS
 #define DISPLAY_RESET_CONTROLS         ON //     ON, ON to allow reset of OnStep, FWU for STM32 firmware upload pin HIGH.     Option
 #endif
