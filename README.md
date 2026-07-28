@@ -122,6 +122,13 @@ You must copy the /elegantota directory into the OnStepX/src/plugins directory a
 #endif
 ```
 
+To add ElegantOTA to your OnStepX website plugin menu, you can define the following in `Config.h`:
+```
+#define WEBSITE_PLUGIN_PAGE1_TITLE "OTA Update"
+#define WEBSITE_PLUGIN_PAGE1_URL "/update"
+#define WEBSITE_PLUGIN_PAGE1_TARGET "_blank" // Optional, opens in a new tab
+```
+
 ### Firmware upload
 
 The plugin works in two different ways, depending on whether WiFi is enabled
@@ -152,6 +159,13 @@ You must copy the /metrics directory into the OnStepX/src/plugins directory and 
 ```
 
 Once enabled, you can head to the path defined by `METRICS_PLUGIN_PATH` (by default `/metrics`) to see your metrics. This is also the path you'll want to use if you want to scrape these metrics using Prometheus.
+
+You can also add the metrics to your OnStepX website menu by defining the following in `Config.h`:
+```
+#define WEBSITE_PLUGIN_PAGE2_TITLE "Metrics"
+#define WEBSITE_PLUGIN_PAGE2_URL "/metrics"
+#define WEBSITE_PLUGIN_PAGE2_TARGET "_blank"
+```
 
 ### Adding metrics
 
