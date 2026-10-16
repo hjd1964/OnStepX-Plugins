@@ -22,9 +22,6 @@
 #ifndef DISPLAY_INTERNAL_TEMPERATURE
 #define DISPLAY_INTERNAL_TEMPERATURE  OFF //    OFF, ON internal MCU temp. in locale default units.                           Option
 #endif
-#ifndef DISPLAY_WIFI_SIGNAL_STRENGTH
-#define DISPLAY_WIFI_SIGNAL_STRENGTH   ON //     ON, Wireless signal strength reported via web interface. OFF otherwise.      Option
-#endif
 #ifndef DISPLAY_COORDINATE_ORIGIN
 #define DISPLAY_COORDINATE_ORIGIN     OFF //    OFF, ON to display the coordinate origin control tile on the mount page.      Option
 #endif
